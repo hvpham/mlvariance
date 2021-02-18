@@ -92,7 +92,8 @@ def schedule_train_job(data_folder, result_folder, experiment_name, runs):
         ]
 
     #script = 'cluster_single_test.py'
-    script = 'cluster_single_cifar100.py'
+    #script = 'cluster_single_cifar100.py'
+    script = 'cluster_single_job.py'
 
     src = ScriptRunConfig(source_directory=project_folder, 
                             script=script,
@@ -139,7 +140,7 @@ local_teamdrive_folder = args.local_teamdrive_folder
 
 NO_RUNS = 100
 
-runs_list = list_cifar100_runs(os.path.join(local_teamdrive_folder, 'result'), NO_RUNS, mode = 'holdout')
+runs_list = list_cifar100_holdout_runs(os.path.join(local_teamdrive_folder, 'result'), NO_RUNS)
 
 MAX_NO_JOBS = 64
 

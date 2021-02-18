@@ -120,10 +120,19 @@ def train_model(run, data_folder, result_folder, mode, holdout_class, a):
         net = torch.nn.DataParallel(net)
         cudnn.benchmark = True
 
+    checkpoint_file = 'ckpt_%s_%s_%d_%d.pth' % (mode, holdout_class, ratio, run_id)
+    if os.path.isfile(checkpoint_file):
+        # Load checkpoint.
+        print('==> Resuming from checkpoint..')
+        checkpoint = torch.load(checkpoint_file)
+        net.load_state_dict(checkpoint['net'])
+        start_epoch = checkpoint['epoch'] + 1
+
+    
     criterion = nn.CrossEntropyLoss()
-    optimizer = optim.SGD(net.parameters(), lr=lr,
+    optimizer = optim.SGD([{"params":net.parameters(),"initial_lr":lr}], lr=lr,
                         momentum=0.9, weight_decay=5e-4)
-    scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=200)
+    scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=200, last_epoch=start_epoch-1)
 
 
     # Training
@@ -150,12 +159,24 @@ def train_model(run, data_folder, result_folder, mode, holdout_class, a):
                 (train_loss/len(trainloader), 100.*correct/total, correct, total))
         
     
-    for epoch in range(start_epoch, start_epoch+EPOCH):
+    for epoch in range(start_epoch, EPOCH):
         train(epoch)
+        
+        if epoch % 10 == 0:
+            print('Saving check point ..')
+            state = {
+                'net': net.state_dict(),
+                'epoch': epoch
+            }
+            torch.save(state, 'ckpt_%s_%s_%d_%d.pth' % (mode, holdout_class, ratio, run_id))
+        
         scheduler.step()
     
-    print('Saving..')
+    print('Saving final model')
     torch.save(net.state_dict(), saving_file)
+
+    print('Deleting check point')
+    os.remove('ckpt_%s_%s_%d_%d.pth' % (mode, holdout_class, ratio, run_id))
 
 
 
