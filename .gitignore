@@ -6,3 +6,5 @@ test.py
 config.json
 cluster_source_folder
 envs
+*.png
+*.html
