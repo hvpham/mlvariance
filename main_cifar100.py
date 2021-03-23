@@ -310,7 +310,7 @@ mode = args.mode
 NO_RUNS = int(args.number_of_run)
 
 holdout_classes = ['baby', 'boy-girl', 'boy-man', 'girl-woman', 'man-woman']
-#holdout_classes = ['caterpillar', 'mushrooms', 'porcupine', 'ray']
+#holdout_classes = ['caterpillar', 'mushroom', 'porcupine', 'ray']
 
 for holdout_class in holdout_classes:
     for a in [0,3,6,9]:

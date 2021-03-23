@@ -14,10 +14,12 @@ result_folder = args.result_folder
 OUT_FILE = result_folder+"/cifar10/cifar10-%s/result.csv"
 
 f = open(os.path.join(result_folder,"cifar10/result.csv"),"w")
-f.write(",")
-f.write(",train_accu,train_holdout,train_normal")
-f.write(",val_accu,val_holdout,val_normal")
-f.write(",test_accu,test_holdout,test_normal")
+f.write("experiment")
+for i in range(5):
+    f.write(",metric")
+    f.write(",train_accu,train_holdout,train_normal")
+    f.write(",val_accu,val_holdout,val_normal")
+    f.write(",test_accu,test_holdout,test_normal")
 f.write("\n")
 
 def analyze_experiment(experiment_string , f):
@@ -35,27 +37,27 @@ def analyze_experiment(experiment_string , f):
         mi = min(data)
         diff = ma-mi
         std_dev = st.stdev(data)
-        stats.append((avg,ma,mi,diff,std_dev))
+        stats.append((avg,std_dev,ma,mi,diff))
     
-    st_names = ['avg', 'max', 'min', 'diff', 'std_dev']
+    st_names = ['avg','std_dev', 'max', 'min', 'diff']
+    f.write("%s" % experiment_string)
     for index, st_name in enumerate(st_names):
-        f.write("%s" % experiment_string)
         f.write(",%s" % st_name)
         for stat in stats:
             f.write(",%f" % stat[index])
-        f.write("\n")
+    f.write("\n")
     
-    f.write("\n\n")
+    #f.write("\n\n")
 
-modes = ['original', 'holdout','augmentation','holdout-dup','augmentation-all']
+modes = ['holdout','augmentation','holdout-dup','augmentation-all']
 
 for mode in modes:
 
-    if mode == "original":
-        analyze_experiment("original", f)
-    else:
-        for a in [3,6,9]:
-            analyze_experiment("%s_0_%d" % (mode, a), f)
+    #if mode == "original":
+    #    analyze_experiment("original", f)
+    #else:
+    for a in [0,3,6,9]:
+        analyze_experiment("%s_0_%d" % (mode, a), f)
 
 f.close()
         

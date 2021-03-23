@@ -221,7 +221,7 @@ def test_model(run, data_folder, result_folder, mode, holdout_class, a):
         return outputs_list, targets_list
 
     results = {}
-    results['train_outputs'], results['train_targets'] = evaluate(valloader)
+    results['train_outputs'], results['train_targets'] = evaluate(trainloader)
     results['val_outputs'], results['val_targets'] = evaluate(valloader)
     results['test_outputs'], results['test_targets'] = evaluate(testloader)
 

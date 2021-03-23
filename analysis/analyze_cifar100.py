@@ -51,7 +51,7 @@ def analyze_experiment(experiment_string , f):
 #modes = ['original', 'holdout']
 modes = ['holdout']
 
-holdout_classes = ['baby', 'boy-girl', 'boy-man', 'girl-woman', 'man-woman', 'caterpillar', 'mushrooms', 'porcupine', 'ray']
+holdout_classes = ['baby', 'boy-girl', 'boy-man', 'girl-woman', 'man-woman', 'caterpillar', 'mushroom', 'porcupine', 'ray']
 
 for mode in modes:
     for holdout_class in holdout_classes:
