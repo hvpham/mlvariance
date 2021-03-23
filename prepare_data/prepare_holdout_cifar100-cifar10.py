@@ -56,11 +56,12 @@ def load_data(root, base_folder, file_name):
 
     return data, coarse_targets, fine_targets
 
-def store_data(data, target, holdout, root, base_folder, file_name):
+def store_data(data, target, holdout, ids, root, base_folder, file_name):
     entry = {}
     entry['data'] = data
     entry['labels'] = target
     entry['holdout'] = holdout
+    entry['ids'] = ids
 
     folder_path = os.path.join(root, base_folder)
     os.makedirs(folder_path,exist_ok=True)
@@ -87,14 +88,18 @@ def coarse_filter(data, coarse_targets, fine_targets, coarse_classes, filter_lis
     return new_data, new_coarse_targets, new_fine_targets
 
 def fine_filter(data, coarse_targets, fine_targets, fine_classes, filter_list, ratio):
+    ids = list(range(len(fine_targets)))
+
     filter_idxs = [i for i, fine_target in enumerate(fine_targets) if fine_classes[fine_target] in filter_list]
     
     exclude_inds = filter_idxs[:int(ratio*len(filter_idxs)/10)]
-
+    
     new_data = np.delete(data, exclude_inds, 0)
     new_coarse_targets = [ t for i, t in enumerate(coarse_targets) if i not in exclude_inds]
     new_fine_targets = [ t for i, t in enumerate(fine_targets) if i not in exclude_inds]
-    return new_data, new_coarse_targets, new_fine_targets
+    new_ids = [ t for i, t in enumerate(ids) if i not in exclude_inds]
+
+    return new_data, new_coarse_targets, new_fine_targets, new_ids
 
 def map_targets(coarse_targets, new_classes, coarse_classes):
     class_to_idx = {_class: i for i, _class in enumerate(new_classes)}
@@ -139,11 +144,16 @@ train_data, train_coarse_targets, train_fine_targets = \
 test_data, test_coarse_targets, test_fine_targets = \
     coarse_filter(test_data, test_coarse_targets, test_fine_targets, coarse_classes, COARSE_FILTER_LIST)
 
+splited_train_data, splited_val_data, splited_train_coarse_targets, splited_val_coarse_targets, splited_train_fine_targets, splited_val_fine_targets=\
+    train_test_split(train_data, train_coarse_targets, train_fine_targets, test_size=0.1, random_state=69)
 
-holdout_class_list = ['ray', 'mushrooms', 'caterpillar', 'porcupine', 'baby', ['boy', 'man'], ['girl', 'woman'], ['boy', 'girl'], ['man', 'woman']]
+
+holdout_class_list = ['ray', 'mushroom', 'caterpillar', 'porcupine', 'baby', ['boy', 'man'], ['girl', 'woman'], ['boy', 'girl'], ['man', 'woman']]
+#holdout_class_list = ['mushroom']
 
 
-for a in range(10):
+for a in range(11):
+#for a in [10]:
     for holdout_class in holdout_class_list:
         if type(holdout_class) is list:
             holdout_class_name = '-'.join(holdout_class)
@@ -153,20 +163,27 @@ for a in range(10):
 
         new_base_folder = NEWDATA_BASE_FOLDER % (("%s_%d") % (holdout_class_name, a))
 
-        new_train_data, new_train_coarse_targets, new_train_fine_targets = \
-            fine_filter(train_data, train_coarse_targets, train_fine_targets, fine_classes, holdout_class, a)
+        new_train_data, new_train_coarse_targets, new_train_fine_targets, new_train_ids = \
+            fine_filter(splited_train_data, splited_train_coarse_targets, splited_train_fine_targets, fine_classes, holdout_class, a)
+        
+        new_val_data, new_val_coarse_targets, new_val_fine_targets, new_val_ids = \
+            fine_filter(splited_val_data, splited_val_coarse_targets, splited_val_fine_targets, fine_classes, holdout_class, a)
         
         new_train_targets = map_targets(new_train_coarse_targets, NEW_CLASSES, coarse_classes)
         new_train_holdout_labels = holdout_indexs(new_train_fine_targets, fine_classes, holdout_class)
 
-        new_test_targets = map_targets(test_coarse_targets, NEW_CLASSES, coarse_classes)
-        new_test_holdout_labels = holdout_indexs(new_train_fine_targets, fine_classes, holdout_class)
-        
-        new_train_data, new_val_data, new_train_targets, new_val_targets, new_train_holdout_labels, new_val_holdout_labels = \
-            train_test_split(new_train_data, new_train_targets, new_train_holdout_labels, test_size=0.1, random_state=69)
+        new_val_targets = map_targets(new_val_coarse_targets, NEW_CLASSES, coarse_classes)
+        new_val_holdout_labels = holdout_indexs(new_val_fine_targets, fine_classes, holdout_class)
 
-        store_data(new_train_data, new_train_targets, new_train_holdout_labels, data_folder, new_base_folder, 'train_batch')
-        store_data(new_val_data, new_val_targets, new_train_holdout_labels, data_folder, new_base_folder, 'val_batch')
-        store_data(test_data, new_test_targets, new_test_holdout_labels, data_folder, new_base_folder, 'test_batch')
+        new_test_targets = map_targets(test_coarse_targets, NEW_CLASSES, coarse_classes)
+        new_test_holdout_labels = holdout_indexs(test_fine_targets, fine_classes, holdout_class)
+        new_test_ids = list(range(len(new_test_holdout_labels)))
+        
+        #new_train_data, new_val_data, new_train_targets, new_val_targets, new_train_holdout_labels, new_val_holdout_labels = \
+        #    train_test_split(new_train_data, new_train_targets, new_train_holdout_labels, test_size=0.1, random_state=69)
+
+        store_data(new_train_data, new_train_targets, new_train_holdout_labels, new_train_ids, data_folder, new_base_folder, 'train_batch')
+        store_data(new_val_data, new_val_targets, new_val_holdout_labels, new_val_ids, data_folder, new_base_folder, 'val_batch')
+        store_data(test_data, new_test_targets, new_test_holdout_labels, new_test_ids, data_folder, new_base_folder, 'test_batch')
     
     
