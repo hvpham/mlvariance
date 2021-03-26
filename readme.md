@@ -61,7 +61,7 @@ To train the models for the COMPAS dataset, you can run one of several scripts
 
 To train models for CIFAR10 and CIFAR100, the AML platform would be used. To schedule the training jobs, the script **_cluster_schedulel_all.py_** can be used. This is a master script that queue jobs to the AML cluster.
 The script take a single argument **_local_teamdrive_folder_** which should point to *~/teamdrive/mlvariance*.
-There should be a **_config.json_** file with the subscription info for the AML cluster. This can be downloaded from [https://ms.portal.azure.com/]. TODO: Get the exact link to download the config.json.
+There should be a **_config.json_** file with the subscription info for the AML cluster. This is the information from [https://dev.azure.com/msresearch/GCR/_wiki/wikis/GCR.wiki/3438/AML-K8s-(aka-ITP)-Overview] under the table Connection Details.
 
 1. To train CIFAR10 models uncomment the line **_runs_list = list_cifar10_runs(...)_**. This function generate the jobs list which consist of single run of **_cluster_single_cifar10.py_**
 2. To train CIFAR100 models uncomment the line **_runs_list = list_cifar100_runs(...)_**. This function generate the jobs list which consist of single run of **_cluster_single_cifar100.py_**

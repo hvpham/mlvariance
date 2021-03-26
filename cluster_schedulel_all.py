@@ -29,6 +29,7 @@ def schedule_train_job(data_folder, result_folder, experiment_name, runs, GPU):
     shutil.copy('cluster_single_detail_analysis_cifar100.py', project_folder)
     shutil.copy('cluster_single_detail_analysis_cifar100_html.py', project_folder)
     shutil.copy('cluster_single_saliency_cifar100.py', project_folder)
+    shutil.copy('cluster_single_evaluate_cifar100.py', project_folder)
     shutil.copy('sort_script.txt', project_folder)
     #shutil.copy('cluster_single_test.py', project_folder)
     shutil.copy('resnet.py', project_folder)
@@ -135,6 +136,22 @@ def list_cifar100_holdout_runs(local_result_folder, no_runs):
         
     return runs_list
 
+def list_cifar100_holdout_evaluate_runs(no_runs):
+    mode = 'holdout'
+    holdout_classes = ['baby', 'boy-girl', 'boy-man', 'girl-woman', 'man-woman', 'caterpillar', 'mushroom', 'porcupine', 'ray']
+    #holdout_classes = ['caterpillar', 'mushroom', 'porcupine', 'ray']
+    
+    runs_list = []
+    for i in range(len(holdout_classes)):
+        holdout_class = holdout_classes[i]
+        for ratio in range(11):
+            script = "cluster_single_evaluate_cifar100.py"
+            args = "%s %s %d %d" % (mode, holdout_class, ratio, no_runs)
+            log = "cifar100_evaluate_%s_%s_%d_%d" % (mode, holdout_class, ratio, no_runs)
+            runs_list.append((script, args, log, False))
+        
+    return runs_list
+
 def list_cifar100_holdout_analysis_runs(no_runs, script_name):
     mode = 'holdout'
     holdout_classes = ['baby', 'boy-girl', 'boy-man', 'girl-woman', 'man-woman', 'caterpillar', 'mushroom', 'porcupine', 'ray']
@@ -208,9 +225,11 @@ NO_RUNS = 100
 
 #runs_list = list_cifar10_runs(os.path.join(local_teamdrive_folder, 'result'), NO_RUNS)
 
-runs_list = list_cifar100_holdout_runs(os.path.join(local_teamdrive_folder, 'result'), NO_RUNS)
+#runs_list = list_cifar100_holdout_runs(os.path.join(local_teamdrive_folder, 'result'), NO_RUNS)
 
-#runs_list = list_cifar100_holdout_analysis_runs(NO_RUNS, "cluster_single_detail_analysis_cifar100.py")
+#runs_list = list_cifar100_holdout_evaluate_runs(NO_RUNS)
+
+runs_list = list_cifar100_holdout_analysis_runs(NO_RUNS, "cluster_single_detail_analysis_cifar100.py")
 
 #runs_list = list_cifar100_holdout_generate_map_runs(os.path.join(local_teamdrive_folder, 'result'), NO_RUNS)
 

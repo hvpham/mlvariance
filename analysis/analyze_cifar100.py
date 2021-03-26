@@ -14,7 +14,7 @@ result_folder = args.result_folder
 OUT_FILE = result_folder+"/cifar100/cifar100-%s/result.csv"
 
 f = open(os.path.join(result_folder,"cifar100/result.csv"),"w")
-f.write("experiment")
+f.write("mode,holdout_class,ratio")
 for i in range(5):
     f.write(",metric")
     f.write(",train_accu,train_holdout,train_normal")
@@ -40,7 +40,7 @@ def analyze_experiment(experiment_string , f):
         stats.append((avg,std_dev,ma,mi,diff))
     
     st_names = ['avg','std_dev', 'max', 'min', 'diff']
-    f.write("%s" % experiment_string)
+    f.write("%s" % experiment_string.replace('_', ','))
     for index, st_name in enumerate(st_names):
         f.write(",%s" % st_name)
         for stat in stats:
@@ -55,7 +55,8 @@ holdout_classes = ['baby', 'boy-girl', 'boy-man', 'girl-woman', 'man-woman', 'ca
 
 for mode in modes:
     for holdout_class in holdout_classes:
-        for a in [0,3,6,9]:
+        #for a in [0,3,6,9]:
+        for a in range(11):
             analyze_experiment("%s_%s_%d" % (mode, holdout_class, a), f)
 
 f.close()

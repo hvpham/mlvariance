@@ -24,6 +24,8 @@ import numpy as np
 
 #torchvision.datasets.CIFAR10
 
+from sklearn.metrics import roc_auc_score
+
 class CIFAR100_HOLDOUT(VisionDataset):
     train_file = 'train_batch'
     val_file = 'val_batch'
@@ -99,12 +101,29 @@ def analyze_individual_rank(targets, holdout, holdout_target, metrics, higher_is
 
     holdout_ranks = [idx for idx, rank in enumerate(ranks) if target_holdout[rank]]
 
-    first_rank = holdout_ranks[0]
-    median_rank = np.median(holdout_ranks)
-    avg_first_10_rank = np.mean(holdout_ranks[:10])
-    avg_rank = np.mean(holdout_ranks)
+    first_rank = holdout_ranks[0]/len(target_metrics)
+    median_rank = np.median(holdout_ranks)/len(target_metrics)
+    avg_first_10_rank = np.mean(holdout_ranks[:10])/len(target_metrics)
+    avg_rank = np.mean(holdout_ranks)/len(target_metrics)
 
     return first_rank, median_rank, avg_first_10_rank, avg_rank
+
+
+def analyze_individual_AUC(targets, holdout, holdout_target, metrics, higher_is_better):
+    if targets is None:
+        target_metrics = metrics
+        target_holdout = holdout
+    else:
+        target_metrics = [metrics[i] for i in range(len(metrics)) if targets[i] == holdout_target]
+        target_holdout = [holdout[i] for i in range(len(holdout)) if targets[i] == holdout_target]
+
+    target_holdout = np.array(target_holdout)
+    auc = roc_auc_score(target_holdout, target_metrics)
+
+    if not higher_is_better:
+        auc = 1 - auc
+
+    return auc
     
 def evaluate_model(NO_RUNS, data_folder, result_folder, mode, holdout_class, holdout_target, a):
 
@@ -166,6 +185,9 @@ def evaluate_model(NO_RUNS, data_folder, result_folder, mode, holdout_class, hol
             ground_conf_ranks = analyze_individual_rank(targets, holdout, holdout_target, ground_confs, False)
             max_conf_ranks = analyze_individual_rank(None, holdout, None, max_confs, False)
 
+            ground_conf_auc = analyze_individual_AUC(targets, holdout, holdout_target, ground_confs, False)
+            max_conf_auc = analyze_individual_AUC(None, holdout, None, max_confs, False)
+
             # target_confs = [ground_confs[i] for i in range(len(ground_confs)) if targets[i] == holdout_target]
             # target_holdout = [holdout[i] for i in range(len(holdout)) if targets[i] == holdout_target]
             # confs_ranks = np.argsort(target_confs)
@@ -174,7 +196,8 @@ def evaluate_model(NO_RUNS, data_folder, result_folder, mode, holdout_class, hol
             #         first_conf_rank = idx
             #         break
 
-            return (correct, np.array(ground_confs), np.array(ground_conf_gaps), np.array(ground_ranks), np.array(max_confs), ground_conf_ranks, max_conf_ranks)
+            return (correct, np.array(ground_confs), np.array(ground_conf_gaps), np.array(ground_ranks), np.array(max_confs), np.array(pred_list),
+                ground_conf_ranks, max_conf_ranks, ground_conf_auc, max_conf_auc)
 
         if a != 10:        
             train_reports.append(process(test_outputs['train_outputs'], test_outputs['train_targets'], train_holdout))
@@ -182,13 +205,13 @@ def evaluate_model(NO_RUNS, data_folder, result_folder, mode, holdout_class, hol
         test_reports.append(process(test_outputs['test_outputs'], test_outputs['test_targets'], test_holdout))
 
     def merge_reports(targets, holdout, ids, reports):
-        processed_reports = [[],[],[],[],[],[],[]]
+        processed_reports = [[],[],[],[],[],[],[],[],[],[]]
         
         for report in reports:
-            for i in range(7):
+            for i in range(10):
                 processed_reports[i].append(report[i])
 
-        for i in range(5):
+        for i in range(6):
             processed_reports[i] = np.vstack(processed_reports[i])
 
         new_reports = {}
@@ -206,6 +229,12 @@ def evaluate_model(NO_RUNS, data_folder, result_folder, mode, holdout_class, hol
         new_reports['std_g_conf_gaps'] = np.std(processed_reports[2], axis=0)
         new_reports['std_g_conf_ranks'] = np.std(processed_reports[3], axis=0)
         new_reports['std_max_conf'] = np.std(processed_reports[4], axis=0)
+        new_reports['std_pre_labels'] = np.std(processed_reports[5], axis=0)
+
+        new_reports['num_pre_labels'] = []
+        for r in range(len(new_reports['correct'])):
+            unique_labels = np.unique(processed_reports[5][:,r])
+            new_reports['num_pre_labels'].append(len(unique_labels))
         
         #additional info
         inds = np.array(ids)
@@ -216,8 +245,12 @@ def evaluate_model(NO_RUNS, data_folder, result_folder, mode, holdout_class, hol
         new_reports['holdout'] =  holdout
 
         #individual ranks:
-        new_reports['ground_conf_ranks'] = processed_reports[5]
-        new_reports['max_conf_ranks'] = processed_reports[6]
+        new_reports['ground_conf_ranks'] = processed_reports[6]
+        new_reports['max_conf_ranks'] = processed_reports[7]
+
+        #individual auc:
+        new_reports['ground_conf_auc'] = processed_reports[8]
+        new_reports['max_conf_auc'] = processed_reports[9]
 
         return new_reports
 
@@ -242,6 +275,8 @@ def evaluate_model(NO_RUNS, data_folder, result_folder, mode, holdout_class, hol
         f.write("Stddev ground conf ranks,")
         f.write("Avg max conf,")
         f.write("Stddev max conf,")
+        f.write("Std predicted conf,")
+        f.write("# unique predicted  label")
         f.write("\n")
 
         for i in range(len(reports['id'])):
@@ -251,6 +286,7 @@ def evaluate_model(NO_RUNS, data_folder, result_folder, mode, holdout_class, hol
             f.write(",%f,%f" % (reports['avg_g_conf_gaps'][i], reports['std_g_conf_gaps'][i]))
             f.write(",%f,%f" % (reports['avg_g_conf_ranks'][i], reports['std_g_conf_ranks'][i]))
             f.write(",%f,%f" % (reports['avg_max_conf'][i], reports['std_max_conf'][i]))
+            f.write(",%f,%d" % (reports['std_pre_labels'][i], reports['num_pre_labels'][i]))
             f.write("\n")
     
         f.close()
@@ -261,7 +297,7 @@ def evaluate_model(NO_RUNS, data_folder, result_folder, mode, holdout_class, hol
     output_analysis('test', test_reports)
 
     
-    def analyze_rank(reports, overall_file_writer):
+    def output_rank(reports, overall_file_writer):
         holdout = reports['holdout']
         targets = reports['target']
         no_correct = reports['correct']
@@ -270,11 +306,18 @@ def evaluate_model(NO_RUNS, data_folder, result_folder, mode, holdout_class, hol
         avg_max_conf = reports['avg_max_conf']
         std_max_conf = reports['std_max_conf']
 
+        std_pre_labels = reports['std_pre_labels']
+        num_pre_labels = reports['num_pre_labels']
+
         no_correct_ranks = analyze_individual_rank(targets, holdout, holdout_target, no_correct, False)
         avg_ground_conf_ranks = analyze_individual_rank(targets, holdout, holdout_target, avg_ground_conf, False)
         std_ground_conf_ranks = analyze_individual_rank(targets, holdout, holdout_target, std_ground_conf, True)
+
         avg_max_conf_ranks = analyze_individual_rank(None, holdout, None, avg_max_conf, False)
         std_max_conf_ranks = analyze_individual_rank(None, holdout, None, std_max_conf, True)
+
+        std_pre_labels_ranks = analyze_individual_rank(None, holdout, None, std_pre_labels, True)
+        num_pre_labels_ranks = analyze_individual_rank(None, holdout, None, num_pre_labels, True)
 
         NUM_METRICS = 4
         
@@ -286,32 +329,77 @@ def evaluate_model(NO_RUNS, data_folder, result_folder, mode, holdout_class, hol
             
             min_ranks = [np.min(ranks[i]) for i in range(NUM_METRICS)]
             max_ranks = [np.max(ranks[i]) for i in range(NUM_METRICS)]
+            median_ranks = [np.median(ranks[i]) for i in range(NUM_METRICS)]
 
-            return min_ranks, max_ranks
+            return min_ranks, max_ranks, median_ranks
 
-        min_g_conf_ranks, max_g_conf_ranks = process_ranks(reports['ground_conf_ranks'])
-        min_max_conf_ranks, max_max_conf_ranks = process_ranks(reports['max_conf_ranks'])
+        min_g_conf_ranks, max_g_conf_ranks, median_g_conf_ranks = process_ranks(reports['ground_conf_ranks'])
+        min_max_conf_ranks, max_max_conf_ranks, median_max_conf_ranks = process_ranks(reports['max_conf_ranks'])
 
         for i in range(NUM_METRICS):
-            if i < 2:
-                pattern = ",%d,%d,%d,%d,%d,%d,%d,%d,%d"
-            else:
-                pattern = ",%f,%f,%f,%f,%f,%f,%f,%f,%f"
+            pattern = ",%f,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f"
             
             overall_file_writer.write(pattern % (no_correct_ranks[i],
-                avg_ground_conf_ranks[i], std_ground_conf_ranks[i], avg_max_conf_ranks[i], std_max_conf_ranks[i],
-                min_g_conf_ranks[i], max_g_conf_ranks[i], min_max_conf_ranks[i], max_max_conf_ranks[i]))
-        
+                avg_ground_conf_ranks[i], std_ground_conf_ranks[i], avg_max_conf_ranks[i], std_max_conf_ranks[i], std_pre_labels_ranks[i], num_pre_labels_ranks[i],
+                min_g_conf_ranks[i], max_g_conf_ranks[i], median_g_conf_ranks[i], min_max_conf_ranks[i], max_max_conf_ranks[i], median_max_conf_ranks[i]))
     
     overall_file = os.path.join(saving_dir,'overall_holdout_rank.csv')
     overall_file_writer = open(overall_file,"w")
-    overall_file_writer.write("%s_%s_%d" % (mode,holdout_class,a))
-    analyze_rank(test_reports, overall_file_writer)
+    overall_file_writer.write("%s,%s,%d" % (mode,holdout_class,a))
+    output_rank(test_reports, overall_file_writer)
     if a != 10:
-        analyze_rank(train_reports, overall_file_writer)
-        analyze_rank(val_reports, overall_file_writer)
+        output_rank(train_reports, overall_file_writer)
+        output_rank(val_reports, overall_file_writer)
     overall_file_writer.close()
 
+    def output_auc(reports, overall_file_writer):
+        holdout = reports['holdout']
+        targets = reports['target']
+        no_correct = reports['correct']
+        avg_ground_conf = reports['avg_g_conf']
+        std_ground_conf = reports['std_g_conf']
+        avg_max_conf = reports['avg_max_conf']
+        std_max_conf = reports['std_max_conf']
+
+        std_pre_labels = reports['std_pre_labels']
+        num_pre_labels = reports['num_pre_labels']
+
+        no_correct_auc = analyze_individual_AUC(targets, holdout, holdout_target, no_correct, False)
+        avg_ground_conf_auc = analyze_individual_AUC(targets, holdout, holdout_target, avg_ground_conf, False)
+        std_ground_conf_auc = analyze_individual_AUC(targets, holdout, holdout_target, std_ground_conf, True)
+        avg_max_conf_auc = analyze_individual_AUC(None, holdout, None, avg_max_conf, False)
+        std_max_conf_auc = analyze_individual_AUC(None, holdout, None, std_max_conf, True)
+
+        std_pre_labels_auc = analyze_individual_AUC(None, holdout, None, std_pre_labels, True)
+        num_pre_labels_auc = analyze_individual_AUC(None, holdout, None, num_pre_labels, True)
+
+        NUM_METRICS = 4
+        
+        def process_AUC(report):
+            min_auc = np.min(report)
+            max_auc = np.max(report)
+            median_auc = np.median(report)
+
+            return min_auc, max_auc, median_auc
+
+        min_g_conf_auc, max_g_conf_auc, median_g_conf_auc = process_AUC(reports['ground_conf_auc'])
+        min_max_conf_auc, max_max_conf_auc, median_max_conf_auc = process_AUC(reports['max_conf_auc'])
+
+        pattern = ",%f,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f"
+            
+        overall_file_writer.write(pattern % (no_correct_auc,
+            avg_ground_conf_auc, std_ground_conf_auc, avg_max_conf_auc, std_max_conf_auc, std_pre_labels_auc, num_pre_labels_auc,
+            min_g_conf_auc, max_g_conf_auc, median_g_conf_auc, min_max_conf_auc, max_max_conf_auc, median_max_conf_auc))
+
+
+    overall_file = os.path.join(saving_dir,'overall_holdout_auc.csv')
+    overall_file_writer = open(overall_file,"w")
+    overall_file_writer.write("%s,%s,%d" % (mode,holdout_class,a))
+    output_auc(test_reports, overall_file_writer)
+    if a != 10:
+        output_auc(train_reports, overall_file_writer)
+        output_auc(val_reports, overall_file_writer)
+    overall_file_writer.close()
 
 
 parser = argparse.ArgumentParser(description='Analyze result with holdout CIFAR-10 and Resnet18')
