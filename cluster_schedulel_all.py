@@ -10,16 +10,17 @@ import tempfile
 import argparse
 import math
 
+
 def write_run_configs(runs, path):
     f = open(path, "w")
     for run in runs:
-        f.write("%s\n%s\n%s\n" % (run[0],run[1],run[2]))
+        f.write("%s\n%s\n%s\n" % (run[0], run[1], run[2]))
     f.close()
 
 
 def schedule_train_job(data_folder, result_folder, experiment_name, runs, GPU):
 
-    #Create project folder
+    # Create project folder
     project_folder = './cluster_source_folder'
     os.makedirs(project_folder, exist_ok=True)
     shutil.copy('cluster_single_job.py', project_folder)
@@ -36,24 +37,22 @@ def schedule_train_job(data_folder, result_folder, experiment_name, runs, GPU):
     #shutil.copy('utils.py', project_folder)
     write_run_configs(runs, os.path.join(project_folder, 'runs'))
 
-
-    #Create AML Workspace
+    # Create AML Workspace
     ws = Workspace.from_config()
     #print(ws.name, ws.resource_group, ws.location, ws.subscription_id, sep='\n')
 
-    #Setup experiment
-    experiment = Experiment(workspace = ws, name = experiment_name)
+    # Setup experiment
+    experiment = Experiment(workspace=ws, name=experiment_name)
 
-    #Set compute target
-    #compute_target = ComputeTarget(workspace=ws, name="itplabrl1cl1") #MSR-Lab-RL1
-    #compute_target = ComputeTarget(workspace=ws, name="itpeastusv100cl") #MSR-Azure-EastUS-V100-16GB
-    #compute_target = ComputeTarget(workspace=ws, name="itpseasiav100cl") #MSR-Azure-SouthEastAsia-V100-16GB
-    compute_target = ComputeTarget(workspace=ws, name="itplabrr1cl1") #MSR-Lab-RR1-V100-32GB
+    # Set compute target
+    # compute_target = ComputeTarget(workspace=ws, name="itplabrl1cl1") #MSR-Lab-RL1
+    # compute_target = ComputeTarget(workspace=ws, name="itpeastusv100cl") #MSR-Azure-EastUS-V100-16GB
+    # compute_target = ComputeTarget(workspace=ws, name="itpseasiav100cl") #MSR-Azure-SouthEastAsia-V100-16GB
+    compute_target = ComputeTarget(workspace=ws, name="itplabrr1cl1")  # MSR-Lab-RR1-V100-32GB
 
-
-    #Create training environment
+    # Create training environment
     #myenv = Environment("training-env")
-    
+
     #myenv.docker.enabled = True
     #myenv.docker.base_image = "mcr.microsoft.com/azureml/base-gpu:openmpi3.1.2-cuda10.0-cudnn7-ubuntu16.04"
     #myenv.python.conda_dependencies.add_pip_package(pip_package = 'torch')
@@ -61,37 +60,36 @@ def schedule_train_job(data_folder, result_folder, experiment_name, runs, GPU):
 
     #curated_env_name = 'AzureML-PyTorch-1.4-GPU'
     #myenv = Environment.get(workspace=ws, name=curated_env_name)
-    #myenv.save_to_directory(path=curated_env_name)
+    # myenv.save_to_directory(path=curated_env_name)
 
     myenv = Environment.from_conda_specification(name='pytorch-1.4-gpu', file_path='./conda_dependencies.yml')
 
     # Specify a GPU base image
     myenv.docker.enabled = True
     myenv.docker.base_image = "mcr.microsoft.com/azureml/base-gpu:openmpi3.1.2-cuda10.0-cudnn7-ubuntu16.04"
-    
+
     #blob_datastore = datastore = Datastore.get(ws, datastore_name='ml_variance_sas')
     blob_datastore = datastore = Datastore.get(ws, datastore_name='ml_variance_key')
 
     data_ref = blob_datastore.path("data").as_mount()
     #data_ref.path_on_compute = '/tmp/data'
-    
+
     result_ref = blob_datastore.path("result").as_mount()
     #result_ref.path_on_compute = '/tmp/result'
-    
-        
+
     arguments = [str(data_ref),
-        str(result_ref),
-        ]
+                 str(result_ref),
+                 ]
 
     #script = 'cluster_single_test.py'
     #script = 'cluster_single_cifar100.py'
     script = 'cluster_single_job.py'
 
-    src = ScriptRunConfig(source_directory=project_folder, 
-                            script=script,
-                            arguments = arguments,
-                            compute_target = compute_target,
-                            environment = myenv)
+    src = ScriptRunConfig(source_directory=project_folder,
+                          script=script,
+                          arguments=arguments,
+                          compute_target=compute_target,
+                          environment=myenv)
 
     src.run_config.data_references[data_ref.data_reference_name] = data_ref.to_config()
     src.run_config.data_references[result_ref.data_reference_name] = result_ref.to_config()
@@ -109,23 +107,52 @@ def schedule_train_job(data_folder, result_folder, experiment_name, runs, GPU):
 
     experiment.submit(config=src)
 
+
 def check_done(path):
     if os.path.isfile(path):
         if os.stat(path).st_size > 0:
             return True
     return False
 
+
 def list_cifar100_holdout_runs(local_result_folder, no_runs):
     mode = 'holdout'
-    holdout_classes = ['baby', 'boy-girl', 'boy-man', 'girl-woman', 'man-woman', 'caterpillar', 'mushroom', 'porcupine', 'ray']
-    #holdout_classes = ['caterpillar', 'mushroom', 'porcupine', 'ray']
+    #holdout_class_list = ['baby', 'boy-girl', 'boy-man', 'girl-woman', 'man-woman', 'caterpillar', 'mushroom', 'porcupine', 'ray']
+    #holdout_class_list = ['caterpillar', 'mushroom', 'porcupine', 'ray']
+
+    aquatic_mammals_list = ['beaver', 'dolphin', 'otter', 'seal', 'whale']
+    # fish_list = ['aquarium_fish', 'flatfish', 'ray', 'shark', 'trout']
+    fish_list = ['aquarium_fish', 'flatfish', 'shark', 'trout']
+    flower_list = ['orchid', 'poppy', 'rose', 'sunflower', 'tulip']
+    # fruit_and_vegetables_list = ['apple', 'mushroom', 'orange', 'pear', 'sweet_pepper']
+    fruit_and_vegetables_list = ['apple', 'orange', 'pear', 'sweet_pepper']
+    # insects_list = ['bee', 'beetle', 'butterfly', 'caterpillar', 'cockroach']
+    insects_list = ['bee', 'beetle', 'butterfly', 'cockroach']
+    #medium_mammals_list = ['fox', 'porcupine', 'possum', 'raccoon', 'skunk']
+    medium_mammals_list = ['fox', 'possum', 'raccoon', 'skunk']
+    #people_list = ['baby', 'boy', 'girl', 'man', 'woman']
+    reptiles_list = ['crocodile', 'dinosaur', 'lizard', 'snake', 'turtle']
+    small_mammals_list = ['hamster', 'mouse', 'rabbit', 'shrew', 'squirrel']
+    trees_list = ['maple_tree', 'oak_tree', 'palm_tree', 'pine_tree', 'willow_tree']
+
+    holdout_class_list = []
+    holdout_class_list.extend(aquatic_mammals_list)
+    holdout_class_list.extend(fish_list)
+    holdout_class_list.extend(flower_list)
+    holdout_class_list.extend(fruit_and_vegetables_list)
+    holdout_class_list.extend(insects_list)
+    holdout_class_list.extend(medium_mammals_list)
+    # holdout_class_list.extend(people_list)
+    holdout_class_list.extend(reptiles_list)
+    holdout_class_list.extend(small_mammals_list)
+    holdout_class_list.extend(trees_list)
 
     runs_list = []
-    for holdout_class in holdout_classes:
-        #for ratio in [0,3,6,9]:
-        #for ratio in [1,2,4,5,7,8,10]:
+    for holdout_class in holdout_class_list:
+        # for ratio in [0,3,6,9]:
+        # for ratio in [1,2,4,5,7,8,10]:
         for ratio in range(11):
-        #for ratio in [10]:
+            # for ratio in [10]:
             for run_id in range(no_runs):
                 outputs_file = os.path.join(local_result_folder, 'cifar100', 'cifar100-%s_%s_%d' % (mode, holdout_class, ratio), 'outputs_%s' % run_id)
                 if not check_done(outputs_file):
@@ -133,14 +160,15 @@ def list_cifar100_holdout_runs(local_result_folder, no_runs):
                     args = "%s %s %d %d" % (mode, holdout_class, ratio, run_id)
                     log = "cifar100_%s_%s_%d_%d" % (mode, holdout_class, ratio, run_id)
                     runs_list.append((script, args, log, True))
-        
+
     return runs_list
+
 
 def list_cifar100_holdout_evaluate_runs(no_runs):
     mode = 'holdout'
     holdout_classes = ['baby', 'boy-girl', 'boy-man', 'girl-woman', 'man-woman', 'caterpillar', 'mushroom', 'porcupine', 'ray']
     #holdout_classes = ['caterpillar', 'mushroom', 'porcupine', 'ray']
-    
+
     runs_list = []
     for i in range(len(holdout_classes)):
         holdout_class = holdout_classes[i]
@@ -149,13 +177,14 @@ def list_cifar100_holdout_evaluate_runs(no_runs):
             args = "%s %s %d %d" % (mode, holdout_class, ratio, no_runs)
             log = "cifar100_evaluate_%s_%s_%d_%d" % (mode, holdout_class, ratio, no_runs)
             runs_list.append((script, args, log, False))
-        
+
     return runs_list
+
 
 def list_cifar100_holdout_analysis_runs(no_runs, script_name):
     mode = 'holdout'
     holdout_classes = ['baby', 'boy-girl', 'boy-man', 'girl-woman', 'man-woman', 'caterpillar', 'mushroom', 'porcupine', 'ray']
-    holdout_targets = [6,6,6,6,6,4,3,5,1]
+    holdout_targets = [6, 6, 6, 6, 6, 4, 3, 5, 1]
     #holdout_classes = ['caterpillar', 'mushroom', 'porcupine', 'ray']
     #holdout_targets = [4,3,5,1]
 
@@ -164,13 +193,14 @@ def list_cifar100_holdout_analysis_runs(no_runs, script_name):
         holdout_class = holdout_classes[i]
         holdout_target = holdout_targets[i]
         for ratio in range(11):
-        #for ratio in [10]:
+            # for ratio in [10]:
             script = script_name
             args = "%s %s %d %d %d" % (mode, holdout_class, holdout_target, ratio, no_runs)
             log = "cifar100_analyze_%s_%s_%d_%d_%d" % (mode, holdout_class, holdout_target, ratio, no_runs)
             runs_list.append((script, args, log, False))
-        
+
     return runs_list
+
 
 def list_cifar100_holdout_generate_map_runs(local_result_folder, no_runs):
     mode = 'holdout'
@@ -179,10 +209,10 @@ def list_cifar100_holdout_generate_map_runs(local_result_folder, no_runs):
 
     runs_list = []
     for holdout_class in holdout_classes:
-        #for ratio in [0,3,6,9]:
-        #for ratio in [1,2,4,5,7,8,10]:
+        # for ratio in [0,3,6,9]:
+        # for ratio in [1,2,4,5,7,8,10]:
         for ratio in range(11):
-        #for ratio in [10]:
+            # for ratio in [10]:
             for run_id in range(no_runs):
                 outputs_file = os.path.join(local_result_folder, 'cifar100', 'cifar100-%s_%s_%d' % (mode, holdout_class, ratio), 'maps_%s' % run_id)
                 if not check_done(outputs_file):
@@ -190,8 +220,9 @@ def list_cifar100_holdout_generate_map_runs(local_result_folder, no_runs):
                     args = "%s %s %d %d" % (mode, holdout_class, ratio, run_id)
                     log = "cifar100_map_%s_%s_%d_%d" % (mode, holdout_class, ratio, run_id)
                     runs_list.append((script, args, log, True))
-        
+
     return runs_list
+
 
 def list_cifar10_runs(local_result_folder, no_runs):
 
@@ -200,10 +231,10 @@ def list_cifar10_runs(local_result_folder, no_runs):
     modes = ['holdout', 'holdout-dup', 'augmentation', 'augmentation-all']
 
     runs_list = []
-    
+
     for mode in modes:
-        #for ratio in [0,3,6,9]:
-        for ratio in [1,2,4,5,7,8,10]:
+        # for ratio in [0,3,6,9]:
+        for ratio in [1, 2, 4, 5, 7, 8, 10]:
             for run_id in range(no_runs):
                 outputs_file = os.path.join(local_result_folder, 'cifar10', 'cifar10-%s_%d_%d' % (mode, holdout_class, ratio), 'outputs_%s' % run_id)
                 if not os.path.isfile(outputs_file):
@@ -211,8 +242,9 @@ def list_cifar10_runs(local_result_folder, no_runs):
                     args = "%s %d %d" % (mode, ratio, run_id)
                     log = "cifar100_%s_%d_%d_%d" % (mode, holdout_class, ratio, run_id)
                     runs_list.append((script, args, log, True))
-        
+
     return runs_list
+
 
 parser = argparse.ArgumentParser(description='Schedule experiment runs on the clusters with holdout CIFAR-100 and Resnet18')
 parser.add_argument('local_teamdrive_folder', help='local teamdrive folder')
@@ -221,15 +253,15 @@ args = parser.parse_args()
 
 local_teamdrive_folder = args.local_teamdrive_folder
 
-NO_RUNS = 100
+NO_RUNS = 25
 
 #runs_list = list_cifar10_runs(os.path.join(local_teamdrive_folder, 'result'), NO_RUNS)
 
-#runs_list = list_cifar100_holdout_runs(os.path.join(local_teamdrive_folder, 'result'), NO_RUNS)
+runs_list = list_cifar100_holdout_runs(os.path.join(local_teamdrive_folder, 'result'), NO_RUNS)
 
 #runs_list = list_cifar100_holdout_evaluate_runs(NO_RUNS)
 
-runs_list = list_cifar100_holdout_analysis_runs(NO_RUNS, "cluster_single_detail_analysis_cifar100.py")
+#runs_list = list_cifar100_holdout_analysis_runs(NO_RUNS, "cluster_single_detail_analysis_cifar100.py")
 
 #runs_list = list_cifar100_holdout_generate_map_runs(os.path.join(local_teamdrive_folder, 'result'), NO_RUNS)
 
@@ -248,8 +280,3 @@ for job_id in range(no_jobs):
     runs = runs_list[start:end]
 
     schedule_train_job("data", "result", 'modelvar-train-rn18-holdout', runs, runs[0][3])
-    
-    
-
-
-
