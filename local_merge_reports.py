@@ -10,12 +10,14 @@ args = parser.parse_args()
 result_folder = args.result_folder
 mode = args.mode
 
-holdout_classes = ['baby', 'boy-girl', 'boy-man', 'girl-woman', 'man-woman', 'caterpillar', 'mushroom', 'porcupine', 'ray']
-#holdout_classes = ['caterpillar', 'mushroom', 'porcupine', 'ray']
+# holdout_classes = ['baby', 'boy-girl', 'boy-man', 'girl-woman', 'man-woman', 'caterpillar', 'mushroom', 'porcupine', 'ray']
+holdout_classes = ['boy-girl', 'boy-man', 'girl-woman', 'man-woman', 'caterpillar', 'mushroom', 'porcupine', 'ray']
+# holdout_classes = ['caterpillar', 'mushroom', 'porcupine', 'ray']
+
 
 def merge_ranks():
     overall_file_path = os.path.join(result_folder, 'cifar100', 'overall_holdout_rank.csv')
-    overall_file_writer = open(overall_file_path,'w')
+    overall_file_writer = open(overall_file_path, 'w')
 
     NO_COLS = 13
     NO_METRICS = 4
@@ -34,7 +36,6 @@ def merge_ranks():
         overall_file_writer.write(",avg_rank" + "," * (NO_COLS - 1))
     overall_file_writer.write("\n")
 
-    
     overall_file_writer.write("mode,holdout_class,ratio")
     for i in range(3 * NO_METRICS):
         overall_file_writer.write(",no_model,avg_ground_conf,std_ground_conf,avg_max_conf,std_max_conf,std_pre_labels,num_pre_labels,min_g_conf,max_g_conf,median_g_conf,min_m_conf,max_m_conf,median_m_conf")
@@ -43,10 +44,10 @@ def merge_ranks():
     for i in range(len(holdout_classes)):
         holdout_class = holdout_classes[i]
         for a in range(11):
-        #for a in [0,3,6,9]:
-        #for a in [1,2,4,5,7,8]:
-        #for a in [0,9]:
-            individual_overall_file_path = os.path.join(result_folder, 'cifar100', 'cifar100-%s_%s_%d' % (mode,holdout_class,a), 'overall_holdout_rank.csv')
+            # for a in [0,3,6,9]:
+            # for a in [1,2,4,5,7,8]:
+            # for a in [0,9]:
+            individual_overall_file_path = os.path.join(result_folder, 'cifar100', 'cifar100-%s_%s_%d' % (mode, holdout_class, a), 'overall_holdout_rank.csv')
             with open(individual_overall_file_path, 'r') as f:
                 line = f.readline()
             overall_file_writer.write(line)
@@ -54,9 +55,10 @@ def merge_ranks():
 
     overall_file_writer.close()
 
+
 def merge_auc():
     overall_file_path = os.path.join(result_folder, 'cifar100', 'overall_holdout_auc.csv')
-    overall_file_writer = open(overall_file_path,'w')
+    overall_file_writer = open(overall_file_path, 'w')
 
     NO_COLS = 11
 
@@ -66,7 +68,6 @@ def merge_auc():
     overall_file_writer.write(",val" + "," * (NO_COLS - 1))
     overall_file_writer.write("\n")
 
-    
     overall_file_writer.write("mode,holdout_class,ratio")
     for i in range(3):
         overall_file_writer.write(",no_model,avg_ground_conf,std_ground_conf,avg_max_conf,std_max_conf,std_pre_labels,num_pre_labels,min_g_conf,max_g_conf,median_g_conf,min_m_conf,max_m_conf,median_m_conf")
@@ -75,7 +76,7 @@ def merge_auc():
     for i in range(len(holdout_classes)):
         holdout_class = holdout_classes[i]
         for a in range(11):
-            individual_overall_file_path = os.path.join(result_folder, 'cifar100', 'cifar100-%s_%s_%d' % (mode,holdout_class,a), 'overall_holdout_auc.csv')
+            individual_overall_file_path = os.path.join(result_folder, 'cifar100', 'cifar100-%s_%s_%d' % (mode, holdout_class, a), 'overall_holdout_auc.csv')
             with open(individual_overall_file_path, 'r') as f:
                 line = f.readline()
             overall_file_writer.write(line)
@@ -83,12 +84,31 @@ def merge_auc():
 
     overall_file_writer.close()
 
-merge_ranks()
-merge_auc()
 
-        
+def merge_n_models_auc():
+    overall_file_path = os.path.join(result_folder, 'cifar100', 'overall_holdout_auc_no_models.csv')
+    overall_file_writer = open(overall_file_path, 'w')
+
+    NO_SPLITS = 10
+
+    overall_file_writer.write("mode,holdout_class,ratio")
+    for i in range(1, NO_SPLITS + 1):
+        overall_file_writer.write(",n_models_split_%d,no_model_%d,avg_ground_conf_%d,std_ground_conf_%d,avg_max_conf_%d,std_max_conf_%d,std_pre_labels_%d,num_pre_labels_%d" % (i, i, i, i, i, i, i, i))
+    overall_file_writer.write(",single_model,min_g_conf,max_g_conf,median_g_conf,min_m_conf,max_m_conf,median_m_conf")
+    overall_file_writer.write("\n")
+
+    for i in range(len(holdout_classes)):
+        holdout_class = holdout_classes[i]
+        for a in range(11):
+            individual_overall_file_path = os.path.join(result_folder, 'cifar100', 'cifar100-%s_%s_%d' % (mode, holdout_class, a), 'overall_holdout_auc_no_models.csv')
+            with open(individual_overall_file_path, 'r') as f:
+                line = f.readline()
+            overall_file_writer.write(line)
+            overall_file_writer.write('\n')
+
+    overall_file_writer.close()
 
 
-
-
-        
+# merge_ranks()
+# merge_auc()
+merge_n_models_auc()

@@ -15,7 +15,7 @@ result_folder = args.result_folder
 
 result_path = os.path.join(result_folder, 'cifar100', 'overall_holdout_rank.csv')
 
-df = pd.read_csv(result_path, skiprows=2, usecols=range(1,47))
+df = pd.read_csv(result_path, skiprows=2, usecols=range(1,55))
 
 def generate_boxplot(data, ylabel, xticklabels, filename):
     fig =  plt.figure(figsize = (12, 6))
