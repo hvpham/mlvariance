@@ -28,15 +28,16 @@ import time
 
 #import gc
 
+
 class CIFAR100_HOLDOUT(VisionDataset):
     train_file = 'train_batch'
     val_file = 'val_batch'
     test_file = 'test_batch'
-    
+
     def __init__(self, holdoutroot, mode='train', transform=None, target_transform=None):
 
         super(CIFAR100_HOLDOUT, self).__init__(holdoutroot, transform=transform,
-                                      target_transform=target_transform)
+                                               target_transform=target_transform)
 
         self.mode = mode  # training set or test set
 
@@ -56,8 +57,6 @@ class CIFAR100_HOLDOUT(VisionDataset):
             self.data = entry['data']
             self.targets = entry['labels']
             self.holdout = entry['holdout']
-
-        
 
     def __getitem__(self, index):
         """
@@ -93,12 +92,12 @@ def check_done(path):
 
 
 def train_model(run, data_folder, result_folder, mode, holdout_class, a):
-    saving_dir = os.path.join(result_folder, 'cifar100', 'cifar100-%s_%s_%d' % (mode,holdout_class,a))
-    os.makedirs(saving_dir,exist_ok=True)
-    saving_file = os.path.join(saving_dir,'model_%d.pth' % run)
-    
+    saving_dir = os.path.join(result_folder, 'cifar100', 'cifar100-%s_%s_%d' % (mode, holdout_class, a))
+    os.makedirs(saving_dir, exist_ok=True)
+    saving_file = os.path.join(saving_dir, 'model_%d.pth' % run)
+
     if check_done(saving_file):
-        print("Already trained for run %d with holdout class %s and a %d. Skip to the next run." % (run,holdout_class,a))
+        print("Already trained for run %d with holdout class %s and a %d. Skip to the next run." % (run, holdout_class, a))
         return
 
     lr = 0.1
@@ -146,17 +145,16 @@ def train_model(run, data_folder, result_folder, mode, holdout_class, a):
         net.load_state_dict(checkpoint['net'])
         start_epoch = checkpoint['epoch'] + 1
 
-    
     criterion = nn.CrossEntropyLoss()
-    optimizer = optim.SGD([{"params":net.parameters(),"initial_lr":lr}], lr=lr,
-                        momentum=0.9, weight_decay=5e-4)
+    optimizer = optim.SGD([{"params": net.parameters(), "initial_lr": lr}], lr=lr,
+                          momentum=0.9, weight_decay=5e-4)
     scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=200, last_epoch=start_epoch-1)
 
     toc = time.perf_counter()
     print("Done in %f seconds" % (toc - tic))
 
-
     # Training
+
     def train(epoch):
         net.train()
         train_loss = 0
@@ -174,38 +172,37 @@ def train_model(run, data_folder, result_folder, mode, holdout_class, a):
             _, predicted = outputs.max(1)
             total += targets.size(0)
             correct += predicted.eq(targets).sum().item()
-        
+
         if epoch % 10 == 0:
-            print("Loss: %.3f | Acc: %.3f%% (%d/%d)\n" % 
-                    (train_loss/len(trainloader), 100.*correct/total, correct, total))
-        
-    
+            print("Loss: %.3f | Acc: %.3f%% (%d/%d)\n" %
+                  (train_loss/len(trainloader), 100.*correct/total, correct, total))
+
     print('Training...')
     tic = time.perf_counter()
-    
+
     for epoch in range(start_epoch, EPOCH):
         print('Epoch: %d' % epoch)
-        
+
         train(epoch)
-        
+
         if epoch % 10 == 0:
             print('Saving check point ..')
             sav_tic = time.perf_counter()
-            
+
             state = {
                 'net': net.state_dict(),
                 'epoch': epoch
             }
             torch.save(state, 'ckpt_%s_%s_%d_%d.pth' % (mode, holdout_class, ratio, run_id))
-            
+
             sav_toc = time.perf_counter()
             print("Done in %f seconds" % (sav_toc - sav_tic))
-        
+
         scheduler.step()
-    
+
     toc = time.perf_counter()
     print("Training done in %f seconds" % (toc - tic))
-    
+
     print('Saving final model')
     tic = time.perf_counter()
     torch.save(net.state_dict(), saving_file)
@@ -219,14 +216,13 @@ def train_model(run, data_folder, result_folder, mode, holdout_class, a):
     print("Done in %f seconds" % (toc - tic))
 
 
-
 def test_model(run, data_folder, result_folder, mode, holdout_class, a):
-    saving_dir = os.path.join(result_folder, 'cifar100', 'cifar100-%s_%s_%d' % (mode,holdout_class,a))
-    model_saving_file = os.path.join(saving_dir,'model_%d.pth' % run)
-    outputs_saving_file = os.path.join(saving_dir,'outputs_%d' % run)
+    saving_dir = os.path.join(result_folder, 'cifar100', 'cifar100-%s_%s_%d' % (mode, holdout_class, a))
+    model_saving_file = os.path.join(saving_dir, 'model_%d.pth' % run)
+    outputs_saving_file = os.path.join(saving_dir, 'outputs_%d' % run)
 
     if check_done(outputs_saving_file):
-        print("Already evaluate for run %d with holdout class %s and a %d. Skip to the next evaluation run." % (run,holdout_class,a))
+        print("Already evaluate for run %d with holdout class %s and a %d. Skip to the next evaluation run." % (run, holdout_class, a))
         return
 
     device = 'cuda' if torch.cuda.is_available() else 'cpu'
@@ -259,7 +255,6 @@ def test_model(run, data_folder, result_folder, mode, holdout_class, a):
     toc = time.perf_counter()
     print("Done in %f seconds" % (toc - tic))
 
-    
     print('Loading model')
     tic = time.perf_counter()
     net = ResNet18()
@@ -267,7 +262,7 @@ def test_model(run, data_folder, result_folder, mode, holdout_class, a):
     if device == 'cuda':
         net = torch.nn.DataParallel(net)
         cudnn.benchmark = True
-    
+
     state_dict = torch.load(model_saving_file)
     net.load_state_dict(state_dict)
 
@@ -314,14 +309,11 @@ def test_model(run, data_folder, result_folder, mode, holdout_class, a):
     print("Done in %f seconds" % (toc - tic))
 
 
-
 parser = argparse.ArgumentParser(description='Run experiment with holdout CIFAR-100 and Resnet18')
 parser.add_argument('data_folder', help='data folder')
 parser.add_argument('result_folder', help='result folder')
 parser.add_argument('mode', choices=['holdout'], help='the mode')
-parser.add_argument('holdout_class', 
-    choices=['baby', 'boy-girl', 'boy-man', 'girl-woman', 'man-woman', 'caterpillar', 'mushroom', 'porcupine', 'ray'],
-    help='the holdout class')
+parser.add_argument('holdout_class', help='the holdout class')
 parser.add_argument('ratio', help='the ratio of holdout')
 parser.add_argument('run_id', help='the id of the run')
 
