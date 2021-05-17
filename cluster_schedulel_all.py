@@ -121,16 +121,16 @@ def list_cifar100_holdout_runs(local_result_folder, no_runs):
     #holdout_class_list = ['caterpillar', 'mushroom', 'porcupine', 'ray']
 
     aquatic_mammals_list = ['beaver', 'dolphin', 'otter', 'seal', 'whale']
-    # fish_list = ['aquarium_fish', 'flatfish', 'ray', 'shark', 'trout']
-    fish_list = ['aquarium_fish', 'flatfish', 'shark', 'trout']
+    fish_list = ['aquarium_fish', 'flatfish', 'ray', 'shark', 'trout']
+    #fish_list = ['aquarium_fish', 'flatfish', 'shark', 'trout']
     flower_list = ['orchid', 'poppy', 'rose', 'sunflower', 'tulip']
-    # fruit_and_vegetables_list = ['apple', 'mushroom', 'orange', 'pear', 'sweet_pepper']
-    fruit_and_vegetables_list = ['apple', 'orange', 'pear', 'sweet_pepper']
-    # insects_list = ['bee', 'beetle', 'butterfly', 'caterpillar', 'cockroach']
-    insects_list = ['bee', 'beetle', 'butterfly', 'cockroach']
-    #medium_mammals_list = ['fox', 'porcupine', 'possum', 'raccoon', 'skunk']
-    medium_mammals_list = ['fox', 'possum', 'raccoon', 'skunk']
-    #people_list = ['baby', 'boy', 'girl', 'man', 'woman']
+    fruit_and_vegetables_list = ['apple', 'mushroom', 'orange', 'pear', 'sweet_pepper']
+    #fruit_and_vegetables_list = ['apple', 'orange', 'pear', 'sweet_pepper']
+    insects_list = ['bee', 'beetle', 'butterfly', 'caterpillar', 'cockroach']
+    #insects_list = ['bee', 'beetle', 'butterfly', 'cockroach']
+    medium_mammals_list = ['fox', 'porcupine', 'possum', 'raccoon', 'skunk']
+    #medium_mammals_list = ['fox', 'possum', 'raccoon', 'skunk']
+    people_list = ['baby', 'boy', 'girl', 'man', 'woman']
     reptiles_list = ['crocodile', 'dinosaur', 'lizard', 'snake', 'turtle']
     small_mammals_list = ['hamster', 'mouse', 'rabbit', 'shrew', 'squirrel']
     trees_list = ['maple_tree', 'oak_tree', 'palm_tree', 'pine_tree', 'willow_tree']
@@ -142,7 +142,7 @@ def list_cifar100_holdout_runs(local_result_folder, no_runs):
     holdout_class_list.extend(fruit_and_vegetables_list)
     holdout_class_list.extend(insects_list)
     holdout_class_list.extend(medium_mammals_list)
-    # holdout_class_list.extend(people_list)
+    holdout_class_list.extend(people_list)
     holdout_class_list.extend(reptiles_list)
     holdout_class_list.extend(small_mammals_list)
     holdout_class_list.extend(trees_list)
