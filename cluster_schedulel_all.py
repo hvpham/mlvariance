@@ -26,6 +26,7 @@ def schedule_train_job(data_folder, result_folder, experiment_name, runs, GPU):
     shutil.copy('cluster_single_job.py', project_folder)
     shutil.copy('cluster_single_run.sh', project_folder)
     shutil.copy('cluster_single_cifar100.py', project_folder)
+    shutil.copy('cluster_single_val_test_cifar100.py', project_folder)
     shutil.copy('cluster_single_cifar10.py', project_folder)
     shutil.copy('cluster_single_detail_analysis_cifar100.py', project_folder)
     shutil.copy('cluster_single_detail_analysis_cifar100_html.py', project_folder)
@@ -164,6 +165,30 @@ def list_cifar100_holdout_runs(local_result_folder, no_runs):
     return runs_list
 
 
+def list_cifar100_holdout_val_test_runs(local_result_folder, no_runs):
+    mode = 'holdout'
+    #holdout_class_list = ['baby', 'boy-girl', 'boy-man', 'girl-woman', 'man-woman', 'caterpillar', 'mushroom', 'porcupine', 'ray']
+    #holdout_class_list = ['caterpillar', 'mushroom', 'porcupine', 'ray']
+
+    holdout_class_list = ['turtle', 'shark', 'crocodile', 'caterpillar', 'possum', 'squirrel', 'ray', 'shrew', 'lizard', 'beaver', 'rabbit', 'seal']
+
+    runs_list = []
+    for holdout_class in holdout_class_list:
+        # for ratio in [0,3,6,9]:
+        # for ratio in [1,2,4,5,7,8,10]:
+        for ratio in range(11):
+            # for ratio in [10]:
+            for run_id in range(no_runs):
+                outputs_file = os.path.join(local_result_folder, 'cifar100', 'cifar100-%s_%s_%d' % (mode, holdout_class, ratio), 'outputs_var_%s' % run_id)
+                if not check_done(outputs_file):
+                    script = "cluster_single_val_test_cifar100.py"
+                    args = "%s %s %d %d" % (mode, holdout_class, ratio, run_id)
+                    log = "cifar100_%s_%s_%d_%d" % (mode, holdout_class, ratio, run_id)
+                    runs_list.append((script, args, log, True))
+
+    return runs_list
+
+
 def list_cifar100_holdout_evaluate_runs(no_runs):
     mode = 'holdout'
     holdout_classes = ['baby', 'boy-girl', 'boy-man', 'girl-woman', 'man-woman', 'caterpillar', 'mushroom', 'porcupine', 'ray']
@@ -257,7 +282,9 @@ NO_RUNS = 25
 
 #runs_list = list_cifar10_runs(os.path.join(local_teamdrive_folder, 'result'), NO_RUNS)
 
-runs_list = list_cifar100_holdout_runs(os.path.join(local_teamdrive_folder, 'result'), NO_RUNS)
+#runs_list = list_cifar100_holdout_runs(os.path.join(local_teamdrive_folder, 'result'), NO_RUNS)
+
+runs_list = list_cifar100_holdout_val_test_runs(os.path.join(local_teamdrive_folder, 'result'), NO_RUNS)
 
 #runs_list = list_cifar100_holdout_evaluate_runs(NO_RUNS)
 

@@ -11,8 +11,36 @@ result_folder = args.result_folder
 mode = args.mode
 
 # holdout_classes = ['baby', 'boy-girl', 'boy-man', 'girl-woman', 'man-woman', 'caterpillar', 'mushroom', 'porcupine', 'ray']
-holdout_classes = ['boy-girl', 'boy-man', 'girl-woman', 'man-woman', 'caterpillar', 'mushroom', 'porcupine', 'ray']
+#holdout_classes = ['boy-girl', 'boy-man', 'girl-woman', 'man-woman', 'caterpillar', 'mushroom', 'porcupine', 'ray']
 # holdout_classes = ['caterpillar', 'mushroom', 'porcupine', 'ray']
+
+aquatic_mammals_list = ['beaver', 'dolphin', 'otter', 'seal', 'whale']
+fish_list = ['aquarium_fish', 'flatfish', 'ray', 'shark', 'trout']
+#fish_list = ['aquarium_fish', 'flatfish', 'shark', 'trout']
+flower_list = ['orchid', 'poppy', 'rose', 'sunflower', 'tulip']
+fruit_and_vegetables_list = ['apple', 'mushroom', 'orange', 'pear', 'sweet_pepper']
+#fruit_and_vegetables_list = ['apple', 'orange', 'pear', 'sweet_pepper']
+insects_list = ['bee', 'beetle', 'butterfly', 'caterpillar', 'cockroach']
+#insects_list = ['bee', 'beetle', 'butterfly', 'cockroach']
+medium_mammals_list = ['fox', 'porcupine', 'possum', 'raccoon', 'skunk']
+#medium_mammals_list = ['fox', 'possum', 'raccoon', 'skunk']
+people_list = ['baby', 'boy', 'girl', 'man', 'woman']
+#people_list = ['baby', 'boy-girl', 'boy-man', 'girl-woman', 'man-woman']
+reptiles_list = ['crocodile', 'dinosaur', 'lizard', 'snake', 'turtle']
+small_mammals_list = ['hamster', 'mouse', 'rabbit', 'shrew', 'squirrel']
+trees_list = ['maple_tree', 'oak_tree', 'palm_tree', 'pine_tree', 'willow_tree']
+
+holdout_class_list = []
+holdout_class_list.extend(aquatic_mammals_list)
+holdout_class_list.extend(fish_list)
+holdout_class_list.extend(flower_list)
+holdout_class_list.extend(fruit_and_vegetables_list)
+holdout_class_list.extend(insects_list)
+holdout_class_list.extend(medium_mammals_list)
+holdout_class_list.extend(people_list)
+holdout_class_list.extend(reptiles_list)
+holdout_class_list.extend(small_mammals_list)
+holdout_class_list.extend(trees_list)
 
 
 def merge_ranks():
@@ -41,8 +69,8 @@ def merge_ranks():
         overall_file_writer.write(",no_model,avg_ground_conf,std_ground_conf,avg_max_conf,std_max_conf,std_pre_labels,num_pre_labels,min_g_conf,max_g_conf,median_g_conf,min_m_conf,max_m_conf,median_m_conf")
     overall_file_writer.write("\n")
 
-    for i in range(len(holdout_classes)):
-        holdout_class = holdout_classes[i]
+    for i in range(len(holdout_class_list)):
+        holdout_class = holdout_class_list[i]
         for a in range(11):
             # for a in [0,3,6,9]:
             # for a in [1,2,4,5,7,8]:
@@ -73,8 +101,8 @@ def merge_auc():
         overall_file_writer.write(",no_model,avg_ground_conf,std_ground_conf,avg_max_conf,std_max_conf,std_pre_labels,num_pre_labels,min_g_conf,max_g_conf,median_g_conf,min_m_conf,max_m_conf,median_m_conf")
     overall_file_writer.write("\n")
 
-    for i in range(len(holdout_classes)):
-        holdout_class = holdout_classes[i]
+    for i in range(len(holdout_class_list)):
+        holdout_class = holdout_class_list[i]
         for a in range(11):
             individual_overall_file_path = os.path.join(result_folder, 'cifar100', 'cifar100-%s_%s_%d' % (mode, holdout_class, a), 'overall_holdout_auc.csv')
             with open(individual_overall_file_path, 'r') as f:
@@ -97,8 +125,8 @@ def merge_n_models_auc():
     overall_file_writer.write(",single_model,min_g_conf,max_g_conf,median_g_conf,min_m_conf,max_m_conf,median_m_conf")
     overall_file_writer.write("\n")
 
-    for i in range(len(holdout_classes)):
-        holdout_class = holdout_classes[i]
+    for i in range(len(holdout_class_list)):
+        holdout_class = holdout_class_list[i]
         for a in range(11):
             individual_overall_file_path = os.path.join(result_folder, 'cifar100', 'cifar100-%s_%s_%d' % (mode, holdout_class, a), 'overall_holdout_auc_no_models.csv')
             with open(individual_overall_file_path, 'r') as f:
@@ -109,6 +137,6 @@ def merge_n_models_auc():
     overall_file_writer.close()
 
 
-# merge_ranks()
-# merge_auc()
-merge_n_models_auc()
+merge_ranks()
+merge_auc()
+# merge_n_models_auc()

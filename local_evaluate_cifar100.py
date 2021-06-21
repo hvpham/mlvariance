@@ -181,12 +181,12 @@ fish_list = ['aquarium_fish', 'flatfish', 'ray', 'shark', 'trout']
 flower_list = ['orchid', 'poppy', 'rose', 'sunflower', 'tulip']
 fruit_and_vegetables_list = ['apple', 'mushroom', 'orange', 'pear', 'sweet_pepper']
 #fruit_and_vegetables_list = ['apple', 'orange', 'pear', 'sweet_pepper']
-# insects_list = ['bee', 'beetle', 'butterfly', 'caterpillar', 'cockroach']
-insects_list = ['bee', 'beetle', 'butterfly', 'cockroach']
+insects_list = ['bee', 'beetle', 'butterfly', 'caterpillar', 'cockroach']
+#insects_list = ['bee', 'beetle', 'butterfly', 'cockroach']
 medium_mammals_list = ['fox', 'porcupine', 'possum', 'raccoon', 'skunk']
 #medium_mammals_list = ['fox', 'possum', 'raccoon', 'skunk']
-#people_list = ['baby', 'boy', 'girl', 'man', 'woman']
-people_list = ['baby', 'boy-girl', 'boy-man', 'girl-woman', 'man-woman']
+people_list = ['baby', 'boy', 'girl', 'man', 'woman']
+#people_list = ['baby', 'boy-girl', 'boy-man', 'girl-woman', 'man-woman']
 reptiles_list = ['crocodile', 'dinosaur', 'lizard', 'snake', 'turtle']
 small_mammals_list = ['hamster', 'mouse', 'rabbit', 'shrew', 'squirrel']
 trees_list = ['maple_tree', 'oak_tree', 'palm_tree', 'pine_tree', 'willow_tree']
@@ -203,6 +203,8 @@ holdout_class_list.extend(reptiles_list)
 holdout_class_list.extend(small_mammals_list)
 holdout_class_list.extend(trees_list)
 
+#holdout_class_list = ['caterpillar']
+
 for holdout_class in holdout_class_list:
     # for a in [0,3,6,9]:
     for a in range(11):
@@ -210,6 +212,6 @@ for holdout_class in holdout_class_list:
             print("Evaluate mode:%s holdout:%s ratio:%d" % (mode, holdout_class, a))
             evaluate_model(NO_RUNS, data_folder, result_folder, mode, holdout_class, a)
         except:
-            pass
+            print("Error while evaluating mode:%s holdout:%s ratio:%d" % (mode, holdout_class, a))
 
 #evaluate_model(NO_RUNS, data_folder, result_folder, mode, 'mushrooms', 3)
