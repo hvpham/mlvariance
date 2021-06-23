@@ -9,6 +9,6 @@ source /anaconda/etc/profile.d/conda.sh
 
 conda activate azureml_py36_pytorch
 
-python local_val_detail_analysis_cifar100_cluster_single.py "~/teamdrive/mlvariance/data" "~/teamdrive/mlvariance/result" "holdout" 25
+python local_val_detail_analysis_cifar100_cluster_single.py "/home/toddm/teamdrive/mlvariance/data" "/home/toddm/teamdrive/mlvariance/result" "holdout" 25
 
 conda deactivate
