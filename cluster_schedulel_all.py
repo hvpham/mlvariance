@@ -121,32 +121,32 @@ def list_cifar100_holdout_runs(local_result_folder, no_runs):
     #holdout_class_list = ['baby', 'boy-girl', 'boy-man', 'girl-woman', 'man-woman', 'caterpillar', 'mushroom', 'porcupine', 'ray']
     #holdout_class_list = ['caterpillar', 'mushroom', 'porcupine', 'ray']
 
-    aquatic_mammals_list = ['beaver', 'dolphin', 'otter', 'seal', 'whale']
-    fish_list = ['aquarium_fish', 'flatfish', 'ray', 'shark', 'trout']
+    aquatic_mammals_list = ['beaver', 'dolphin', 'otter', 'seal', 'whale']  # 0
+    fish_list = ['aquarium_fish', 'flatfish', 'ray', 'shark', 'trout']  # 1
     #fish_list = ['aquarium_fish', 'flatfish', 'shark', 'trout']
-    flower_list = ['orchid', 'poppy', 'rose', 'sunflower', 'tulip']
-    fruit_and_vegetables_list = ['apple', 'mushroom', 'orange', 'pear', 'sweet_pepper']
+    flower_list = ['orchid', 'poppy', 'rose', 'sunflower', 'tulip']  # 2
+    fruit_and_vegetables_list = ['apple', 'mushroom', 'orange', 'pear', 'sweet_pepper']  # 3
     #fruit_and_vegetables_list = ['apple', 'orange', 'pear', 'sweet_pepper']
-    insects_list = ['bee', 'beetle', 'butterfly', 'caterpillar', 'cockroach']
+    insects_list = ['bee', 'beetle', 'butterfly', 'caterpillar', 'cockroach']  # 4
     #insects_list = ['bee', 'beetle', 'butterfly', 'cockroach']
-    medium_mammals_list = ['fox', 'porcupine', 'possum', 'raccoon', 'skunk']
+    medium_mammals_list = ['fox', 'porcupine', 'possum', 'raccoon', 'skunk']  # 5
     #medium_mammals_list = ['fox', 'possum', 'raccoon', 'skunk']
-    people_list = ['baby', 'boy', 'girl', 'man', 'woman']
-    reptiles_list = ['crocodile', 'dinosaur', 'lizard', 'snake', 'turtle']
-    small_mammals_list = ['hamster', 'mouse', 'rabbit', 'shrew', 'squirrel']
-    trees_list = ['maple_tree', 'oak_tree', 'palm_tree', 'pine_tree', 'willow_tree']
+    people_list = ['baby', 'boy', 'girl', 'man', 'woman']  # 6
+    reptiles_list = ['crocodile', 'dinosaur', 'lizard', 'snake', 'turtle']  # 7
+    small_mammals_list = ['hamster', 'mouse', 'rabbit', 'shrew', 'squirrel']  # 8
+    trees_list = ['maple_tree', 'oak_tree', 'palm_tree', 'pine_tree', 'willow_tree']  # 9
 
     holdout_class_list = []
-    holdout_class_list.extend(aquatic_mammals_list)
-    holdout_class_list.extend(fish_list)
-    holdout_class_list.extend(flower_list)
-    holdout_class_list.extend(fruit_and_vegetables_list)
-    holdout_class_list.extend(insects_list)
-    holdout_class_list.extend(medium_mammals_list)
-    holdout_class_list.extend(people_list)
-    holdout_class_list.extend(reptiles_list)
-    holdout_class_list.extend(small_mammals_list)
-    holdout_class_list.extend(trees_list)
+    holdout_class_list.extend(aquatic_mammals_list)  # 0
+    holdout_class_list.extend(fish_list)  # 1
+    holdout_class_list.extend(flower_list)  # 2
+    holdout_class_list.extend(fruit_and_vegetables_list)  # 3
+    holdout_class_list.extend(insects_list)  # 4
+    holdout_class_list.extend(medium_mammals_list)  # 5
+    holdout_class_list.extend(people_list)  # 6
+    holdout_class_list.extend(reptiles_list)  # 7
+    holdout_class_list.extend(small_mammals_list)  # 8
+    holdout_class_list.extend(trees_list)  # 9
 
     runs_list = []
     for holdout_class in holdout_class_list:
@@ -185,6 +185,30 @@ def list_cifar100_holdout_val_test_runs(local_result_folder, no_runs):
                     args = "%s %s %d %d" % (mode, holdout_class, ratio, run_id)
                     log = "cifar100_%s_%s_%d_%d" % (mode, holdout_class, ratio, run_id)
                     runs_list.append((script, args, log, True))
+
+    return runs_list
+
+
+def list_cifar100_holdout_val_train_more_runs(local_result_folder, no_runs):
+    mode = 'holdout'
+
+    holdout_class_list = ['turtle', 'shark', 'crocodile', 'caterpillar', 'possum', 'squirrel', 'ray', 'shrew', 'lizard', 'beaver', 'rabbit', 'seal']
+
+    runs_list = []
+    for holdout_class in holdout_class_list:
+        # for ratio in [0,3,6,9]:
+        # for ratio in [1,2,4,5,7,8,10]:
+        # for ratio in range(11):
+        for ratio in [0, 5, 10]:
+            # for ratio in [10]:
+            for val_ratio in [1, 2, 5]:
+                for run_id in range(no_runs):
+                    outputs_file = os.path.join(local_result_folder, 'cifar100', 'cifar100-%s_%s_%d' % (mode, holdout_class, ratio), 'outputs_%d_%d' % (run_id, val_ratio))
+                    if not check_done(outputs_file):
+                        script = "cluster_single_train_more_cifar100.py"
+                        args = "%s %s %d %d %d" % (mode, holdout_class, ratio, run_id, val_ratio)
+                        log = "cifar100_%s_%s_%d_%d_%d" % (mode, holdout_class, ratio, run_id, val_ratio)
+                        runs_list.append((script, args, log, True))
 
     return runs_list
 
@@ -284,7 +308,9 @@ NO_RUNS = 25
 
 #runs_list = list_cifar100_holdout_runs(os.path.join(local_teamdrive_folder, 'result'), NO_RUNS)
 
-runs_list = list_cifar100_holdout_val_test_runs(os.path.join(local_teamdrive_folder, 'result'), NO_RUNS)
+#runs_list = list_cifar100_holdout_val_test_runs(os.path.join(local_teamdrive_folder, 'result'), NO_RUNS)
+
+runs_list = list_cifar100_holdout_val_train_more_runs(os.path.join(local_teamdrive_folder, 'result'), NO_RUNS)
 
 #runs_list = list_cifar100_holdout_evaluate_runs(NO_RUNS)
 
