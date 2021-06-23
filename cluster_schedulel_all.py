@@ -27,6 +27,7 @@ def schedule_train_job(data_folder, result_folder, experiment_name, runs, GPU):
     shutil.copy('cluster_single_run.sh', project_folder)
     shutil.copy('cluster_single_cifar100.py', project_folder)
     shutil.copy('cluster_single_val_test_cifar100.py', project_folder)
+    shutil.copy('cluster_single_train_more_cifar100.py', project_folder)
     shutil.copy('cluster_single_cifar10.py', project_folder)
     shutil.copy('cluster_single_detail_analysis_cifar100.py', project_folder)
     shutil.copy('cluster_single_detail_analysis_cifar100_html.py', project_folder)
