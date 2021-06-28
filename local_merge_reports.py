@@ -137,6 +137,6 @@ def merge_n_models_auc():
     overall_file_writer.close()
 
 
-merge_ranks()
-merge_auc()
+# merge_ranks()
+# merge_auc()
 # merge_n_models_auc()

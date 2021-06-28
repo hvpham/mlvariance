@@ -172,18 +172,18 @@ def train_model(run, data_folder, result_folder, mode, holdout_class, a, val_rat
     os.makedirs(saving_dir, exist_ok=True)
     saving_file = os.path.join(saving_dir, 'model_%d_%d.pth' % (run, val_ratio))
 
-    if check_done(saving_file):
-        print("Already trained for run %d with holdout class %s and a %d. Skip to the next run." % (run, holdout_class, a))
-        return
+    # if check_done(saving_file):
+    #    print("Already trained for run %d with holdout class %s and a %d. Skip to the next run." % (run, holdout_class, a))
+    #    return
 
     lr = 0.1
 
     #EPOCH = 150
     #EPOCH = 2
-    EPOCH = 50
+    EPOCH = 200
 
     device = 'cuda' if torch.cuda.is_available() else 'cpu'
-    start_epoch = 0   # start from epoch 0 or last checkpoint epoch
+    start_epoch = 150   # start from epoch 150 or last checkpoint epoch
 
     # Data
     print('Preparing data..')
@@ -306,9 +306,9 @@ def test_model(run, data_folder, result_folder, mode, holdout_class, a, val_rati
     model_saving_file = os.path.join(saving_dir, 'model_%d_%d.pth' % (run, val_ratio))
     outputs_saving_file = os.path.join(saving_dir, 'outputs_%d_%d' % (run, val_ratio))
 
-    if check_done(outputs_saving_file):
-        print("Already evaluate for run %d with holdout class %s and a %d. Skip to the next evaluation run." % (run, holdout_class, a))
-        return
+    # if check_done(outputs_saving_file):
+    #    print("Already evaluate for run %d with holdout class %s and a %d. Skip to the next evaluation run." % (run, holdout_class, a))
+    #    return
 
     device = 'cuda' if torch.cuda.is_available() else 'cpu'
 

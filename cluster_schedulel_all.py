@@ -202,14 +202,14 @@ def list_cifar100_holdout_val_train_more_runs(local_result_folder, no_runs):
         # for ratio in range(11):
         for ratio in [0, 5, 10]:
             # for ratio in [10]:
-            for val_ratio in [1, 2, 5]:
+            for val_ratio in [1, 2, 5, 10]:
                 for run_id in range(no_runs):
                     outputs_file = os.path.join(local_result_folder, 'cifar100', 'cifar100-%s_%s_%d' % (mode, holdout_class, ratio), 'outputs_%d_%d' % (run_id, val_ratio))
-                    if not check_done(outputs_file):
-                        script = "cluster_single_train_more_cifar100.py"
-                        args = "%s %s %d %d %d" % (mode, holdout_class, ratio, run_id, val_ratio)
-                        log = "cifar100_%s_%s_%d_%d_%d" % (mode, holdout_class, ratio, run_id, val_ratio)
-                        runs_list.append((script, args, log, True))
+                    # if not check_done(outputs_file):
+                    script = "cluster_single_train_more_cifar100.py"
+                    args = "%s %s %d %d %d" % (mode, holdout_class, ratio, run_id, val_ratio)
+                    log = "cifar100_%s_%s_%d_%d_%d" % (mode, holdout_class, ratio, run_id, val_ratio)
+                    runs_list.append((script, args, log, True))
 
     return runs_list
 
