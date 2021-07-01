@@ -112,15 +112,17 @@ class CIFAR100_HOLDOUT_WITH_ADDITIONAL_VAL(VisionDataset):
         train_data, train_target, train_holdout = load_data(holdoutroot, 'train_batch')
         val_data, val_target, val_holdout = load_data(valroot, 'val_batch')
 
-        ranking = pd.read_csv(ranking_path)
-
-        if ranking_mode == 'std_conf':
-            std_conf = ranking['Stddev max conf'].tolist()
-            sorted_idxs = np.argsort(std_conf)
-            sorted_idxs = np.flip(sorted_idxs)
-        elif ranking_mode == 'avg_conf':
-            avg_conf = ranking['Avg max conf'].tolist()
-            sorted_idxs = np.argsort(avg_conf)
+        if ranking_mode != 'random':
+            ranking = pd.read_csv(ranking_path)
+            if ranking_mode == 'std_conf':
+                std_conf = ranking['Stddev max conf'].tolist()
+                sorted_idxs = np.argsort(std_conf)
+                sorted_idxs = np.flip(sorted_idxs)
+            elif ranking_mode == 'avg_conf':
+                avg_conf = ranking['Avg max conf'].tolist()
+                sorted_idxs = np.argsort(avg_conf)
+        elif ranking_mode == 'random':
+            sorted_idxs = np.permutation(len(val_target))
         else:
             pass
 
@@ -167,14 +169,14 @@ def check_done(path):
     return False
 
 
-def train_model(run, data_folder, result_folder, mode, holdout_class, a, val_ratio):
+def train_model(run, data_folder, result_folder, mode, holdout_class, a, val_ratio, retrain_mode):
     saving_dir = os.path.join(result_folder, 'cifar100', 'cifar100-%s_%s_%d' % (mode, holdout_class, a))
     os.makedirs(saving_dir, exist_ok=True)
-    saving_file = os.path.join(saving_dir, 'model_%d_%d.pth' % (run, val_ratio))
+    saving_file = os.path.join(saving_dir, 'model_%d_%s_%d.pth' % (run, retrain_mode, val_ratio))
 
-    # if check_done(saving_file):
-    #    print("Already trained for run %d with holdout class %s and a %d. Skip to the next run." % (run, holdout_class, a))
-    #    return
+    if check_done(saving_file):
+        print("Already trained for run %d with holdout class %s and a %d. Skip to the next run." % (run, holdout_class, a))
+        return
 
     lr = 0.1
 
@@ -200,7 +202,7 @@ def train_model(run, data_folder, result_folder, mode, holdout_class, a, val_rat
     ranking_path = os.path.join(result_folder, 'cifar100', 'cifar100-%s_%s_%d' % (mode, holdout_class, a), 'analysis_per_image_full_val.csv')
 
     trainset = CIFAR100_HOLDOUT_WITH_ADDITIONAL_VAL(
-        holdoutroot=holdoutroot, valroot=valroot, ranking_path=ranking_path, ranking_mode='std_conf', val_ratio=val_ratio,  transform=transform_train)
+        holdoutroot=holdoutroot, valroot=valroot, ranking_path=ranking_path, ranking_mode=retrain_mode, val_ratio=val_ratio,  transform=transform_train)
     trainloader = torch.utils.data.DataLoader(
         trainset, batch_size=128, shuffle=True, num_workers=2)
 
@@ -216,7 +218,7 @@ def train_model(run, data_folder, result_folder, mode, holdout_class, a, val_rat
         net = torch.nn.DataParallel(net)
         cudnn.benchmark = True
 
-    checkpoint_file = 'ckpt_%s_%s_%d_%d_%d.pth' % (mode, holdout_class, ratio, run_id, val_ratio)
+    checkpoint_file = 'ckpt_%s_%s_%d_%d_%s_%d.pth' % (mode, holdout_class, ratio, run_id, retrain_mode, val_ratio)
     if os.path.isfile(checkpoint_file):
         # Load checkpoint.
         print('==> Resuming from checkpoint..')
@@ -303,12 +305,12 @@ def train_model(run, data_folder, result_folder, mode, holdout_class, a, val_rat
 
 def test_model(run, data_folder, result_folder, mode, holdout_class, a, val_ratio):
     saving_dir = os.path.join(result_folder, 'cifar100', 'cifar100-%s_%s_%d' % (mode, holdout_class, a))
-    model_saving_file = os.path.join(saving_dir, 'model_%d_%d.pth' % (run, val_ratio))
-    outputs_saving_file = os.path.join(saving_dir, 'outputs_%d_%d' % (run, val_ratio))
+    model_saving_file = os.path.join(saving_dir, 'model_%d_%s_%d.pth' % (run, retrain_mode, val_ratio))
+    outputs_saving_file = os.path.join(saving_dir, 'outputs_%d_%s_%d' % (run, retrain_mode, val_ratio))
 
-    # if check_done(outputs_saving_file):
-    #    print("Already evaluate for run %d with holdout class %s and a %d. Skip to the next evaluation run." % (run, holdout_class, a))
-    #    return
+    if check_done(outputs_saving_file):
+        print("Already evaluate for run %d with holdout class %s and a %d. Skip to the next evaluation run." % (run, holdout_class, a))
+        return
 
     device = 'cuda' if torch.cuda.is_available() else 'cpu'
 
@@ -380,17 +382,19 @@ parser.add_argument('holdout_class', help='the holdout class')
 parser.add_argument('ratio', help='the ratio of holdout')
 parser.add_argument('run_id', help='the id of the run')
 parser.add_argument('val_ratio', help='the ratio of additional validation sample to train on')
+parser.add_argument('retrain_mode', choices=['random', 'avg_conf', 'std_conf', 'conf_worst', 'conf_median'], help='the mode')
 
 args = parser.parse_args()
 
 data_folder = args.data_folder
 result_folder = args.result_folder
 mode = args.mode
+retrain_mode = args.retrain_mode
 
 run_id = int(args.run_id)
 holdout_class = args.holdout_class
 ratio = int(args.ratio)
 val_ratio = int(args.val_ratio)
 
-train_model(run_id, data_folder, result_folder, mode, holdout_class, ratio, val_ratio)
-test_model(run_id, data_folder, result_folder, mode, holdout_class, ratio, val_ratio)
+train_model(run_id, data_folder, result_folder, mode, holdout_class, ratio, val_ratio, retrain_mode)
+test_model(run_id, data_folder, result_folder, mode, holdout_class, ratio, val_ratio, retrain_mode)
