@@ -197,10 +197,11 @@ def list_cifar100_holdout_val_train_more_runs(local_result_folder, no_runs):
 
     runs_list = []
     for holdout_class in holdout_class_list:
-        # for ratio in [0,3,6,9]:
-        # for ratio in [1,2,4,5,7,8,10]:
-        # for ratio in range(11):
-        for retrain_mode in ['random', 'std_conf', 'avg_conf']:
+        # for retrain_mode in ['random', 'std_conf', 'avg_conf']:
+        for retrain_mode in ['random']:
+            # for ratio in [0,3,6,9]:
+            # for ratio in [1,2,4,5,7,8,10]:
+            # for ratio in range(11):
             for ratio in [0, 5, 10]:
                 # for ratio in [10]:
                 for val_ratio in [1, 2, 5, 10]:

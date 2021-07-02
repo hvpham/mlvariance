@@ -122,7 +122,7 @@ class CIFAR100_HOLDOUT_WITH_ADDITIONAL_VAL(VisionDataset):
                 avg_conf = ranking['Avg max conf'].tolist()
                 sorted_idxs = np.argsort(avg_conf)
         elif ranking_mode == 'random':
-            sorted_idxs = np.permutation(len(val_target))
+            sorted_idxs = np.random.permutation(len(val_target))
         else:
             pass
 
