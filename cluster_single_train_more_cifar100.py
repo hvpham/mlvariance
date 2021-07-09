@@ -303,7 +303,7 @@ def train_model(run, data_folder, result_folder, mode, holdout_class, a, val_rat
     print("Done in %f seconds" % (toc - tic))
 
 
-def test_model(run, data_folder, result_folder, mode, holdout_class, a, val_ratio):
+def test_model(run, data_folder, result_folder, mode, holdout_class, a, val_ratio, retrain_mode):
     saving_dir = os.path.join(result_folder, 'cifar100', 'cifar100-%s_%s_%d' % (mode, holdout_class, a))
     model_saving_file = os.path.join(saving_dir, 'model_%d_%s_%d.pth' % (run, retrain_mode, val_ratio))
     outputs_saving_file = os.path.join(saving_dir, 'outputs_%d_%s_%d' % (run, retrain_mode, val_ratio))
@@ -374,27 +374,32 @@ def test_model(run, data_folder, result_folder, mode, holdout_class, a, val_rati
     print("Done in %f seconds" % (toc - tic))
 
 
-parser = argparse.ArgumentParser(description='Run experiment with holdout CIFAR-100 and Resnet18')
-parser.add_argument('data_folder', help='data folder')
-parser.add_argument('result_folder', help='result folder')
-parser.add_argument('mode', choices=['holdout'], help='the mode')
-parser.add_argument('holdout_class', help='the holdout class')
-parser.add_argument('ratio', help='the ratio of holdout')
-parser.add_argument('run_id', help='the id of the run')
-parser.add_argument('val_ratio', help='the ratio of additional validation sample to train on')
-parser.add_argument('retrain_mode', choices=['random', 'avg_conf', 'std_conf', 'conf_worst', 'conf_median'], help='the mode')
+def main():
+    parser = argparse.ArgumentParser(description='Run experiment with holdout CIFAR-100 and Resnet18')
+    parser.add_argument('data_folder', help='data folder')
+    parser.add_argument('result_folder', help='result folder')
+    parser.add_argument('mode', choices=['holdout'], help='the mode')
+    parser.add_argument('holdout_class', help='the holdout class')
+    parser.add_argument('ratio', help='the ratio of holdout')
+    parser.add_argument('run_id', help='the id of the run')
+    parser.add_argument('val_ratio', help='the ratio of additional validation sample to train on')
+    parser.add_argument('retrain_mode', choices=['random', 'avg_conf', 'std_conf', 'conf_worst', 'conf_median'], help='the mode')
 
-args = parser.parse_args()
+    args = parser.parse_args()
 
-data_folder = args.data_folder
-result_folder = args.result_folder
-mode = args.mode
-retrain_mode = args.retrain_mode
+    data_folder = args.data_folder
+    result_folder = args.result_folder
+    mode = args.mode
+    retrain_mode = args.retrain_mode
 
-run_id = int(args.run_id)
-holdout_class = args.holdout_class
-ratio = int(args.ratio)
-val_ratio = int(args.val_ratio)
+    run_id = int(args.run_id)
+    holdout_class = args.holdout_class
+    ratio = int(args.ratio)
+    val_ratio = int(args.val_ratio)
 
-train_model(run_id, data_folder, result_folder, mode, holdout_class, ratio, val_ratio, retrain_mode)
-test_model(run_id, data_folder, result_folder, mode, holdout_class, ratio, val_ratio, retrain_mode)
+    train_model(run_id, data_folder, result_folder, mode, holdout_class, ratio, val_ratio, retrain_mode)
+    test_model(run_id, data_folder, result_folder, mode, holdout_class, ratio, val_ratio, retrain_mode)
+
+
+if __name__ == "__main__":
+    main()
