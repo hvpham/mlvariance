@@ -327,8 +327,12 @@ runs_list = list_cifar100_holdout_val_train_more_runs(os.path.join(local_teamdri
 #MAX_NO_JOBS = 16
 MAX_NO_JOBS = 32
 
+MIN_NO_RUNS_PER_JOB = 10
+
 #NO_RUNS_PER_JOB = 1
 NO_RUNS_PER_JOB = math.ceil(len(runs_list)/MAX_NO_JOBS)
+if NO_RUNS_PER_JOB < MIN_NO_RUNS_PER_JOB:
+    NO_RUNS_PER_JOB = MIN_NO_RUNS_PER_JOB
 no_jobs = math.ceil(len(runs_list)/NO_RUNS_PER_JOB)
 for job_id in range(no_jobs):
     start = job_id * NO_RUNS_PER_JOB
