@@ -92,8 +92,6 @@ class CIFAR100_HOLDOUT_WITH_ADDITIONAL_VAL(VisionDataset):
         super(CIFAR100_HOLDOUT_WITH_ADDITIONAL_VAL, self).__init__(holdoutroot, transform=transform,
                                                                    target_transform=target_transform)
 
-        self.mode = mode  # training set or test set
-
         self.valroot = valroot
 
         def load_data(root, file_name):
