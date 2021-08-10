@@ -137,7 +137,7 @@ def train_model(run, data_folder, result_folder, mode, holdout_class, a):
         net = torch.nn.DataParallel(net)
         cudnn.benchmark = True
 
-    checkpoint_file = 'ckpt_%s_%s_%d_%d.pth' % (mode, holdout_class, ratio, run_id)
+    checkpoint_file = 'ckpt_%s_%s_%d_%d.pth' % (mode, holdout_class, a, run)
     if os.path.isfile(checkpoint_file):
         # Load checkpoint.
         print('==> Resuming from checkpoint..')
@@ -193,7 +193,7 @@ def train_model(run, data_folder, result_folder, mode, holdout_class, a):
                 'net': net.state_dict(),
                 'epoch': epoch
             }
-            torch.save(state, 'ckpt_%s_%s_%d_%d.pth' % (mode, holdout_class, ratio, run_id))
+            torch.save(state, 'ckpt_%s_%s_%d_%d.pth' % (mode, holdout_class, a, run))
 
             sav_toc = time.perf_counter()
             print("Done in %f seconds" % (sav_toc - sav_tic))
@@ -211,7 +211,7 @@ def train_model(run, data_folder, result_folder, mode, holdout_class, a):
 
     print('Deleting check point')
     tic = time.perf_counter()
-    os.remove('ckpt_%s_%s_%d_%d.pth' % (mode, holdout_class, ratio, run_id))
+    os.remove('ckpt_%s_%s_%d_%d.pth' % (mode, holdout_class, a, run))
     toc = time.perf_counter()
     print("Done in %f seconds" % (toc - tic))
 
@@ -309,23 +309,28 @@ def test_model(run, data_folder, result_folder, mode, holdout_class, a):
     print("Done in %f seconds" % (toc - tic))
 
 
-parser = argparse.ArgumentParser(description='Run experiment with holdout CIFAR-100 and Resnet18')
-parser.add_argument('data_folder', help='data folder')
-parser.add_argument('result_folder', help='result folder')
-parser.add_argument('mode', choices=['holdout'], help='the mode')
-parser.add_argument('holdout_class', help='the holdout class')
-parser.add_argument('ratio', help='the ratio of holdout')
-parser.add_argument('run_id', help='the id of the run')
+def main():
+    parser = argparse.ArgumentParser(description='Run experiment with holdout CIFAR-100 and Resnet18')
+    parser.add_argument('data_folder', help='data folder')
+    parser.add_argument('result_folder', help='result folder')
+    parser.add_argument('mode', choices=['holdout'], help='the mode')
+    parser.add_argument('holdout_class', help='the holdout class')
+    parser.add_argument('ratio', help='the ratio of holdout')
+    parser.add_argument('run_id', help='the id of the run')
 
-args = parser.parse_args()
+    args = parser.parse_args()
 
-data_folder = args.data_folder
-result_folder = args.result_folder
-mode = args.mode
+    data_folder = args.data_folder
+    result_folder = args.result_folder
+    mode = args.mode
 
-run_id = int(args.run_id)
-holdout_class = args.holdout_class
-ratio = int(args.ratio)
+    run_id = int(args.run_id)
+    holdout_class = args.holdout_class
+    ratio = int(args.ratio)
 
-train_model(run_id, data_folder, result_folder, mode, holdout_class, ratio)
-test_model(run_id, data_folder, result_folder, mode, holdout_class, ratio)
+    train_model(run_id, data_folder, result_folder, mode, holdout_class, ratio)
+    test_model(run_id, data_folder, result_folder, mode, holdout_class, ratio)
+
+
+if __name__ == "__main__":
+    main()
