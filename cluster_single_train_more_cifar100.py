@@ -216,7 +216,7 @@ def train_model(run, data_folder, result_folder, mode, holdout_class, a, val_rat
         net = torch.nn.DataParallel(net)
         cudnn.benchmark = True
 
-    checkpoint_file = 'ckpt_%s_%s_%d_%d_%s_%d.pth' % (mode, holdout_class, ratio, run_id, retrain_mode, val_ratio)
+    checkpoint_file = 'ckpt_%s_%s_%d_%d_%s_%d.pth' % (mode, holdout_class, a, run, retrain_mode, val_ratio)
     if os.path.isfile(checkpoint_file):
         # Load checkpoint.
         print('==> Resuming from checkpoint..')
