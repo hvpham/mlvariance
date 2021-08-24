@@ -3,6 +3,7 @@ import os
 
 import argparse
 
+import cluster_single_detail_analysis_cifar100
 import cluster_single_val_detail_analysis_cifar100
 
 parser = argparse.ArgumentParser(description='Run local analysis')
@@ -37,4 +38,5 @@ for i in range(len(holdout_class_list)):
     holdout_target = holdout_targets[i]
     for ratio in range(11):
         print("Analyze mode:%s holdout:%s ratio:%d" % (mode, holdout_class, ratio))
+        cluster_single_detail_analysis_cifar100.evaluate_model(NO_RUNS, data_folder, result_folder, mode, holdout_class, holdout_target, ratio)
         cluster_single_val_detail_analysis_cifar100.evaluate_model(NO_RUNS, data_folder, result_folder, mode, holdout_class, holdout_target, ratio)

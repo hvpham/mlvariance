@@ -180,7 +180,7 @@ def evaluate_model(NO_RUNS, data_folder, result_folder, mode, holdout_class, hol
 
         val_reports.append(process(test_outputs['val_outputs'], test_outputs['val_targets'], val_holdout))
 
-    def merge_reports(targets, holdout, ids, reports):
+    def merge_reports(targets, holdout, ids, reports, min_index, max_index, median_index):
         processed_reports = [[], [], [], [], [], [], [], [], [], []]
 
         for report in reports:
@@ -212,6 +212,10 @@ def evaluate_model(NO_RUNS, data_folder, result_folder, mode, holdout_class, hol
             unique_labels = np.unique(processed_reports[5][:, r])
             new_reports['num_pre_labels'].append(len(unique_labels))
 
+        new_reports['min_max_conf'] = processed_reports[4][min_index]
+        new_reports['max_max_conf'] = processed_reports[4][max_index]
+        new_reports['median_max_conf'] = processed_reports[4][median_index]
+
         # additional info
         inds = np.array(ids)
         new_targets = np.array([t.numpy() for t in targets])
@@ -230,7 +234,16 @@ def evaluate_model(NO_RUNS, data_folder, result_folder, mode, holdout_class, hol
 
         return new_reports
 
-    val_reports = merge_reports(test_outputs['val_targets'], val_holdout, val_ids, val_reports)
+    auc_path = os.path.join(saving_dir, 'overall_holdout_auc.csv')
+
+    with open(auc_path) as f:
+        line = f.readline()
+        splited = line.split(',')
+        min_index = int(splited[16])
+        max_index = int(splited[17])
+        median_index = int(splited[18])
+
+    val_reports = merge_reports(test_outputs['val_targets'], val_holdout, val_ids, val_reports, min_index, max_index, median_index)
 
     def output_analysis(setname, reports):
         analysis_out_file = os.path.join(saving_dir, 'analysis_per_image_%s.csv' % setname)
@@ -249,7 +262,10 @@ def evaluate_model(NO_RUNS, data_folder, result_folder, mode, holdout_class, hol
         f.write("Avg max conf,")
         f.write("Stddev max conf,")
         f.write("Std predicted conf,")
-        f.write("# unique predicted  label")
+        f.write("# unique predicted label, ")
+        f.write("Min max conf, ")
+        f.write("Max max conf, ")
+        f.write("Median max conf")
         f.write("\n")
 
         for i in range(len(reports['id'])):
@@ -260,6 +276,7 @@ def evaluate_model(NO_RUNS, data_folder, result_folder, mode, holdout_class, hol
             f.write(",%f,%f" % (reports['avg_g_conf_ranks'][i], reports['std_g_conf_ranks'][i]))
             f.write(",%f,%f" % (reports['avg_max_conf'][i], reports['std_max_conf'][i]))
             f.write(",%f,%d" % (reports['std_pre_labels'][i], reports['num_pre_labels'][i]))
+            f.write(",%f,%f,%f" % (reports['min_max_conf'][i], reports['max_max_conf'][i], reports['median_max_conf'][i]))
             f.write("\n")
 
         f.close()

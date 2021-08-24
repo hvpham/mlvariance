@@ -119,6 +119,15 @@ class CIFAR100_HOLDOUT_WITH_ADDITIONAL_VAL(VisionDataset):
             elif ranking_mode == 'avg_conf':
                 avg_conf = ranking['Avg max conf'].tolist()
                 sorted_idxs = np.argsort(avg_conf)
+            elif ranking_mode == 'conf_worst':
+                min_conf = ranking['Min max conf'].tolist()
+                sorted_idxs = np.argsort(min_conf)
+            elif ranking_mode == 'conf_best':
+                max_conf = ranking['Max max conf'].tolist()
+                sorted_idxs = np.argsort(max_conf)
+            elif ranking_mode == 'conf_median':
+                median_conf = ranking['Median max conf'].tolist()
+                sorted_idxs = np.argsort(median_conf)
         elif ranking_mode == 'random':
             sorted_idxs = np.random.permutation(len(val_target))
         else:
@@ -381,7 +390,7 @@ def main():
     parser.add_argument('ratio', help='the ratio of holdout')
     parser.add_argument('run_id', help='the id of the run')
     parser.add_argument('val_ratio', help='the ratio of additional validation sample to train on')
-    parser.add_argument('retrain_mode', choices=['random', 'avg_conf', 'std_conf', 'conf_worst', 'conf_median'], help='the mode')
+    parser.add_argument('retrain_mode', choices=['random', 'avg_conf', 'std_conf', 'conf_worst', 'conf_best', 'conf_median'], help='the mode')
 
     args = parser.parse_args()
 

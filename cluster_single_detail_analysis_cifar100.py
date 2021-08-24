@@ -377,20 +377,27 @@ def evaluate_model(NO_RUNS, data_folder, result_folder, mode, holdout_class, hol
         NUM_METRICS = 4
 
         def process_AUC(report):
-            min_auc = np.min(report)
-            max_auc = np.max(report)
-            median_auc = np.median(report)
+            sorted_indexes = np.argsort(report)
 
-            return min_auc, max_auc, median_auc
+            min_index = sorted_indexes[0]
+            max_index = sorted_indexes[-1]
+            median_index = sorted_indexes[int(np.floor(len(sorted_indexes)/2))]
 
-        min_g_conf_auc, max_g_conf_auc, median_g_conf_auc = process_AUC(reports['ground_conf_auc'])
-        min_max_conf_auc, max_max_conf_auc, median_max_conf_auc = process_AUC(reports['max_conf_auc'])
+            min_auc = report[min_index]
+            max_auc = report[max_index]
+            median_auc = report[median_index]
 
-        pattern = ",%f,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f"
+            return min_index, max_index, median_index, min_auc, max_auc, median_auc
+
+        min_index_g_conf_auc, max_index_g_conf_auc, median_index_g_conf_auc, min_g_conf_auc, max_g_conf_auc, median_g_conf_auc = process_AUC(reports['ground_conf_auc'])
+        min_index_max_conf_auc, max_index_max_conf_auc, median_index_max_conf_auc, min_max_conf_auc, max_max_conf_auc, median_max_conf_auc = process_AUC(reports['max_conf_auc'])
+
+        pattern = ",%f,%f,%f,%f,%f,%f,%f,%d,%d,%d,%f,%f,%f,%d,%d,%d,%f,%f,%f"
 
         overall_file_writer.write(pattern % (no_correct_auc,
                                              avg_ground_conf_auc, std_ground_conf_auc, avg_max_conf_auc, std_max_conf_auc, std_pre_labels_auc, num_pre_labels_auc,
-                                             min_g_conf_auc, max_g_conf_auc, median_g_conf_auc, min_max_conf_auc, max_max_conf_auc, median_max_conf_auc))
+                                             min_index_g_conf_auc, max_index_g_conf_auc, median_index_g_conf_auc, min_g_conf_auc, max_g_conf_auc, median_g_conf_auc,
+                                             min_index_max_conf_auc, max_index_max_conf_auc, median_index_max_conf_auc, min_max_conf_auc, max_max_conf_auc, median_max_conf_auc))
 
     overall_file = os.path.join(saving_dir, 'overall_holdout_auc.csv')
     overall_file_writer = open(overall_file, "w")
