@@ -262,9 +262,9 @@ def evaluate_model(NO_RUNS, data_folder, result_folder, mode, holdout_class, hol
         f.write("Avg max conf,")
         f.write("Stddev max conf,")
         f.write("Std predicted conf,")
-        f.write("# unique predicted label, ")
-        f.write("Min max conf, ")
-        f.write("Max max conf, ")
+        f.write("# unique predicted label,")
+        f.write("Min max conf,")
+        f.write("Max max conf,")
         f.write("Median max conf")
         f.write("\n")
 
