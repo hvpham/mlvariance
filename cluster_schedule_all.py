@@ -315,9 +315,9 @@ NO_RUNS = 25
 
 #runs_list = list_cifar100_holdout_runs(os.path.join(local_teamdrive_folder, 'result'), NO_RUNS)
 
-runs_list = list_cifar100_holdout_val_test_runs(os.path.join(local_teamdrive_folder, 'result'), NO_RUNS)
+#runs_list = list_cifar100_holdout_val_test_runs(os.path.join(local_teamdrive_folder, 'result'), NO_RUNS)
 
-#runs_list = list_cifar100_holdout_val_train_more_runs(os.path.join(local_teamdrive_folder, 'result'), NO_RUNS)
+runs_list = list_cifar100_holdout_val_train_more_runs(os.path.join(local_teamdrive_folder, 'result'), NO_RUNS)
 
 #runs_list = list_cifar100_holdout_evaluate_runs(NO_RUNS)
 

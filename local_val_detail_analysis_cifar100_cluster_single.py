@@ -29,9 +29,13 @@ NO_RUNS = int(args.number_of_run)
 #holdout_classes = ['caterpillar', 'mushroom', 'porcupine', 'ray']
 #holdout_targets = [4, 3, 5, 1]
 
-holdout_class_list = ['turtle', 'shark', 'crocodile', 'caterpillar', 'possum', 'squirrel', 'ray', 'shrew', 'lizard', 'beaver', 'rabbit', 'seal']
+#holdout_class_list = ['turtle', 'shark', 'crocodile', 'caterpillar', 'possum', 'squirrel', 'ray', 'shrew', 'lizard', 'beaver', 'rabbit', 'seal']
+holdout_class_list = ['boy', 'maple_tree', 'oak_tree', 'willow_tree', 'man', 'woman', 'pine_tree',
+                      'apple', 'girl', 'orange', 'rose', 'cockroach', 'tulip', 'baby', 'palm_tree', 'poppy', 'pear', 'whale']
 
-holdout_targets = [7, 1, 7, 4, 5, 8, 1, 8, 7, 0, 8, 0]
+#holdout_targets = [7, 1, 7, 4, 5, 8, 1, 8, 7, 0, 8, 0]
+holdout_targets = [6, 9, 9, 9, 6, 6, 9,
+                   3, 6, 3, 2, 4, 2, 6, 9, 2, 3, 0]
 
 for i in range(len(holdout_class_list)):
     holdout_class = holdout_class_list[i]
