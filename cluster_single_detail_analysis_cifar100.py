@@ -414,9 +414,7 @@ def main():
     parser.add_argument('data_folder', help='data folder')
     parser.add_argument('result_folder', help='result folder')
     parser.add_argument('mode', choices=['holdout'], help='the mode')
-    parser.add_argument('holdout_class',
-                        choices=['baby', 'boy-girl', 'boy-man', 'girl-woman', 'man-woman', 'caterpillar', 'mushroom', 'porcupine', 'ray'],
-                        help='the holdout class')
+    parser.add_argument('holdout_class', help='the holdout class')
     parser.add_argument('holdout_target', help='the target that the holdout class belong to')
     parser.add_argument('ratio', help='the ratio of holdout')
     parser.add_argument('number_of_runs', help='the the number of runs')

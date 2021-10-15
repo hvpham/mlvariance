@@ -254,7 +254,7 @@ def list_cifar100_holdout_val_train_more_runs(local_result_folder, no_runs):
             # for ratio in range(11):
             for ratio in [0, 5, 10]:
                 # for ratio in [10]:
-                for val_ratio in [1, 2, 5, 10]:
+                for val_ratio in [0, 1, 2, 5, 10]:
                     for run_id in range(no_runs):
                         outputs_file = os.path.join(local_result_folder, 'cifar100', 'cifar100-%s_%s_%d' % (mode, holdout_class, ratio), 'outputs_%d_%s_%d' % (run_id, retrain_mode, val_ratio))
                         if not check_done(outputs_file):

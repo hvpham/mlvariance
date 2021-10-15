@@ -178,7 +178,23 @@ def evaluate_model(NO_RUNS, data_folder, result_folder, mode, holdout_class, hol
             return (correct, np.array(ground_confs), np.array(ground_conf_gaps), np.array(ground_ranks), np.array(max_confs), np.array(pred_list),
                     ground_conf_ranks, max_conf_ranks, ground_conf_auc, max_conf_auc)
 
-        val_reports.append(process(test_outputs['val_outputs'], test_outputs['val_targets'], val_holdout))
+        processed_outputs = process(test_outputs['val_outputs'], test_outputs['val_targets'], val_holdout)
+
+        def output_single_analysis(path, ids, pre_confs):
+            f = open(path, "w")
+            f.write("Img id,")
+            f.write("Pre conf,")
+            f.write("\n")
+
+            for i in range(len(ids)):
+                f.write("%d,%f\n" % (ids[i], pre_confs[i]))
+            f.close()
+
+        single_analysis_file = os.path.join(saving_dir, 'analysis_per_image_full_val_%d.csv' % run)
+
+        output_single_analysis(single_analysis_file, val_ids, processed_outputs[4])
+
+        val_reports.append(processed_outputs)
 
     def merge_reports(targets, holdout, ids, reports, min_index, max_index, median_index):
         processed_reports = [[], [], [], [], [], [], [], [], [], []]

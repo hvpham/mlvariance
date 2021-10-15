@@ -12,7 +12,7 @@ import os
 import argparse
 
 from resnet import ResNet18
-#from utils import progress_bar
+# from utils import progress_bar
 
 from torchvision.datasets import VisionDataset
 
@@ -24,9 +24,9 @@ import numpy as np
 
 import time
 
-#import shutil
+# import shutil
 
-#import gc
+# import gc
 
 import pandas as pd
 
@@ -119,29 +119,37 @@ class CIFAR100_HOLDOUT_WITH_ADDITIONAL_VAL(VisionDataset):
             elif ranking_mode == 'avg_conf':
                 avg_conf = ranking['Avg max conf'].tolist()
                 sorted_idxs = np.argsort(avg_conf)
-            elif ranking_mode == 'conf_worst':
-                min_conf = ranking['Min max conf'].tolist()
-                sorted_idxs = np.argsort(min_conf)
-            elif ranking_mode == 'conf_best':
-                max_conf = ranking['Max max conf'].tolist()
-                sorted_idxs = np.argsort(max_conf)
-            elif ranking_mode == 'conf_median':
-                median_conf = ranking['Median max conf'].tolist()
-                sorted_idxs = np.argsort(median_conf)
+            # elif ranking_mode == 'conf_worst':
+            #    min_conf = ranking['Min max conf'].tolist()
+            #    sorted_idxs = np.argsort(min_conf)
+            # elif ranking_mode == 'conf_best':
+            #    max_conf = ranking['Max max conf'].tolist()
+            #    sorted_idxs = np.argsort(max_conf)
+            # elif ranking_mode == 'conf_median':
+            #    median_conf = ranking['Median max conf'].tolist()
+            #    sorted_idxs = np.argsort(median_conf)
+            elif ranking_mode == 'single_conf':
+                single_conf = ranking['Pre conf'].tolist()
+                sorted_idxs = np.argsort(single_conf)
         elif ranking_mode == 'random':
             sorted_idxs = np.random.permutation(len(val_target))
         else:
             pass
 
-        exclude_idxs = sorted_idxs[int(val_ratio*len(sorted_idxs)/10) - 1:]
+        if val_ratio == 0:
+            self.data = train_data
+            self.targets = train_target
+            self.holdout = train_holdout
+        else:
+            exclude_idxs = sorted_idxs[int(val_ratio*len(sorted_idxs)/10) - 1:]
 
-        filtered_val_data = np.delete(val_data, exclude_idxs, 0)
-        filtered_val_target = [t for i, t in enumerate(val_target) if i not in exclude_idxs]
-        filtered_val_holdout = [t for i, t in enumerate(val_holdout) if i not in exclude_idxs]
+            filtered_val_data = np.delete(val_data, exclude_idxs, 0)
+            filtered_val_target = [t for i, t in enumerate(val_target) if i not in exclude_idxs]
+            filtered_val_holdout = [t for i, t in enumerate(val_holdout) if i not in exclude_idxs]
 
-        self.data = np.concatenate((train_data, filtered_val_data), axis=0)
-        self.targets = train_target + filtered_val_target
-        self.holdout = train_holdout + filtered_val_holdout
+            self.data = np.concatenate((train_data, filtered_val_data), axis=0)
+            self.targets = train_target + filtered_val_target
+            self.holdout = train_holdout + filtered_val_holdout
 
     def __getitem__(self, index):
         """
@@ -187,8 +195,8 @@ def train_model(run, data_folder, result_folder, mode, holdout_class, a, val_rat
 
     lr = 0.1
 
-    #EPOCH = 150
-    #EPOCH = 2
+    # EPOCH = 150
+    # EPOCH = 2
     EPOCH = 200
 
     device = 'cuda' if torch.cuda.is_available() else 'cpu'
@@ -207,9 +215,15 @@ def train_model(run, data_folder, result_folder, mode, holdout_class, a, val_rat
     holdoutroot = os.path.join(data_folder, 'cifar100', '%s_%s_%d' % (mode, holdout_class, a))
     valroot = os.path.join(data_folder, 'cifar100', '%s_%s_%d' % (mode, holdout_class, 0))
     ranking_path = os.path.join(result_folder, 'cifar100', 'cifar100-%s_%s_%d' % (mode, holdout_class, a), 'analysis_per_image_full_val.csv')
+    single_ranking_path = os.path.join(result_folder, 'cifar100', 'cifar100-%s_%s_%d' % (mode, holdout_class, a), 'analysis_per_image_full_val_%d.csv' % run)
 
-    trainset = CIFAR100_HOLDOUT_WITH_ADDITIONAL_VAL(
-        holdoutroot=holdoutroot, valroot=valroot, ranking_path=ranking_path, ranking_mode=retrain_mode, val_ratio=val_ratio,  transform=transform_train)
+    if retrain_mode == 'single_conf':
+        trainset = CIFAR100_HOLDOUT_WITH_ADDITIONAL_VAL(
+            holdoutroot=holdoutroot, valroot=valroot, ranking_path=single_ranking_path, ranking_mode=retrain_mode, val_ratio=val_ratio,  transform=transform_train)
+    else:
+        trainset = CIFAR100_HOLDOUT_WITH_ADDITIONAL_VAL(
+            holdoutroot=holdoutroot, valroot=valroot, ranking_path=ranking_path, ranking_mode=retrain_mode, val_ratio=val_ratio,  transform=transform_train)
+
     trainloader = torch.utils.data.DataLoader(
         trainset, batch_size=128, shuffle=True, num_workers=2)
 
@@ -390,7 +404,7 @@ def main():
     parser.add_argument('ratio', help='the ratio of holdout')
     parser.add_argument('run_id', help='the id of the run')
     parser.add_argument('val_ratio', help='the ratio of additional validation sample to train on')
-    parser.add_argument('retrain_mode', choices=['random', 'avg_conf', 'std_conf', 'conf_worst', 'conf_best', 'conf_median'], help='the mode')
+    parser.add_argument('retrain_mode', choices=['random', 'avg_conf', 'std_conf', 'single_conf'], help='the mode')
 
     args = parser.parse_args()
 
