@@ -1,0 +1,3 @@
+#!/bin/bash
+bash local_val_detail_analysis_cifar100_cluster_single.sh
+bash cluster_schedule_all_retrain.sh
