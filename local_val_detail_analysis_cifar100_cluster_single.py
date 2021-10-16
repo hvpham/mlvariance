@@ -63,7 +63,7 @@ holdout_class_list.extend(trees_list)  # 9
 
 holdout_targets = []
 for l in range(10):
-    holdout_class_list.extend([l] * 5)
+    holdout_targets.extend([l] * 5)
 
 for i in range(len(holdout_class_list)):
     holdout_class = holdout_class_list[i]
