@@ -119,6 +119,28 @@ class CIFAR100_HOLDOUT_WITH_ADDITIONAL_VAL(VisionDataset):
             elif ranking_mode == 'avg_conf':
                 avg_conf = ranking['Avg max conf'].tolist()
                 sorted_idxs = np.argsort(avg_conf)
+            elif ranking_mode == 'std_avg_conf':
+                std_conf = ranking['Stddev max conf'].tolist()
+                std_sorted_idxs = np.argsort(std_conf)
+                std_sorted_idxs = np.flip(std_sorted_idxs)
+
+                avg_conf = ranking['Avg max conf'].tolist()
+                avg_sorted_idxs = np.argsort(avg_conf)
+
+                def get_rank(sorted_idxs):
+                    ranks = list(range(len(sorted_idxs)))
+                    ranks_map = dict(zip(sorted_idxs, ranks))
+                    return ranks_map
+
+                std_rank_map = get_rank(std_sorted_idxs)
+                avg_rank_map = get_rank(avg_sorted_idxs)
+
+                rank_idxs = std_sorted_idxs
+                rank_product = [(std_rank_map[idx]*avg_rank_map[idx]) ** 0.5 for idx in rank_idxs]
+
+                rank_product_sorted_idxs = np.argsort(rank_product)
+                sorted_idxs = [rank_idxs[idx] for idx in rank_product_sorted_idxs]
+
             # elif ranking_mode == 'conf_worst':
             #    min_conf = ranking['Min max conf'].tolist()
             #    sorted_idxs = np.argsort(min_conf)
@@ -404,7 +426,7 @@ def main():
     parser.add_argument('ratio', help='the ratio of holdout')
     parser.add_argument('run_id', help='the id of the run')
     parser.add_argument('val_ratio', help='the ratio of additional validation sample to train on')
-    parser.add_argument('retrain_mode', choices=['random', 'avg_conf', 'std_conf', 'single_conf'], help='the mode')
+    parser.add_argument('retrain_mode', choices=['random', 'avg_conf', 'std_conf', 'std_avg_conf', 'single_conf'], help='the mode')
 
     args = parser.parse_args()
 
