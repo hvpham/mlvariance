@@ -166,6 +166,55 @@ def list_cifar100_holdout_runs(local_result_folder, no_runs):
     return runs_list
 
 
+def list_cifar100_holdout_runs(local_result_folder, no_runs):
+    mode = 'holdout'
+    #holdout_class_list = ['baby', 'boy-girl', 'boy-man', 'girl-woman', 'man-woman', 'caterpillar', 'mushroom', 'porcupine', 'ray']
+    #holdout_class_list = ['caterpillar', 'mushroom', 'porcupine', 'ray']
+
+    aquatic_mammals_list = ['beaver', 'dolphin', 'otter', 'seal', 'whale']  # 0
+    fish_list = ['aquarium_fish', 'flatfish', 'ray', 'shark', 'trout']  # 1
+    #fish_list = ['aquarium_fish', 'flatfish', 'shark', 'trout']
+    flower_list = ['orchid', 'poppy', 'rose', 'sunflower', 'tulip']  # 2
+    fruit_and_vegetables_list = ['apple', 'mushroom', 'orange', 'pear', 'sweet_pepper']  # 3
+    #fruit_and_vegetables_list = ['apple', 'orange', 'pear', 'sweet_pepper']
+    insects_list = ['bee', 'beetle', 'butterfly', 'caterpillar', 'cockroach']  # 4
+    #insects_list = ['bee', 'beetle', 'butterfly', 'cockroach']
+    medium_mammals_list = ['fox', 'porcupine', 'possum', 'raccoon', 'skunk']  # 5
+    #medium_mammals_list = ['fox', 'possum', 'raccoon', 'skunk']
+    people_list = ['baby', 'boy', 'girl', 'man', 'woman']  # 6
+    reptiles_list = ['crocodile', 'dinosaur', 'lizard', 'snake', 'turtle']  # 7
+    small_mammals_list = ['hamster', 'mouse', 'rabbit', 'shrew', 'squirrel']  # 8
+    trees_list = ['maple_tree', 'oak_tree', 'palm_tree', 'pine_tree', 'willow_tree']  # 9
+
+    holdout_class_list = []
+    holdout_class_list.extend(aquatic_mammals_list)  # 0
+    holdout_class_list.extend(fish_list)  # 1
+    holdout_class_list.extend(flower_list)  # 2
+    holdout_class_list.extend(fruit_and_vegetables_list)  # 3
+    holdout_class_list.extend(insects_list)  # 4
+    holdout_class_list.extend(medium_mammals_list)  # 5
+    holdout_class_list.extend(people_list)  # 6
+    holdout_class_list.extend(reptiles_list)  # 7
+    holdout_class_list.extend(small_mammals_list)  # 8
+    holdout_class_list.extend(trees_list)  # 9
+
+    runs_list = []
+    for holdout_class in holdout_class_list:
+        # for ratio in [0,3,6,9]:
+        # for ratio in [1,2,4,5,7,8,10]:
+        for ratio in range(11):
+            # for ratio in [10]:
+            for run_id in range(no_runs):
+                outputs_file = os.path.join(local_result_folder, 'cifar100', 'cifar100-%s_%s_%d' % (mode, holdout_class, ratio), 'outputs_%s' % run_id)
+                if not check_done(outputs_file):
+                    script = "cluster_single_cifar100.py"
+                    args = "%s %s %d %d" % (mode, holdout_class, ratio, run_id)
+                    log = "cifar100_%s_%s_%d_%d" % (mode, holdout_class, ratio, run_id)
+                    runs_list.append((script, args, log, True))
+
+    return runs_list
+
+
 def list_cifar100_holdout_val_test_runs(local_result_folder, no_runs):
     mode = 'holdout'
     #holdout_class_list = ['baby', 'boy-girl', 'boy-man', 'girl-woman', 'man-woman', 'caterpillar', 'mushroom', 'porcupine', 'ray']
@@ -349,9 +398,52 @@ def list_cifar10_runs(local_result_folder, no_runs):
     return runs_list
 
 
+def list_amazon_holdout_runs(local_result_folder, no_runs):
+    mode = 'holdout'
+
+    Education_Reference = ["Languages", "Maps & Atlases", "Test Preparation", "Dictionaries", "Religion"]  # 0
+    Business_Office = ["Office Suites", "Document Management", "Training", "Word Processing", "Contact Management"]  # 1
+    Children_s = ["Early Learning", "Games", "Math", "Reading & Language", "Art & Creativity"]  # 2
+    Utilities = ["Backup", "PC Maintenance", "Drivers & Driver Recovery", "Internet Utilities", "Screen Savers"]  # 3
+    Design_Illustration = ["Animation & 3D", "Training", "CAD", "Illustration"]  # 4
+    Accounting_Finance = ["Business Accounting", "Personal Finance", "Check Printing", "Point of Sale", "Payroll"]  # 5
+    Video = ["Video Editing", "DVD Viewing & Burning", "Compositing & Effects", "Encoding"]  # 6
+    Music = ["Instrument Instruction", "Music Notation", "CD Burning & Labeling", "MP3 Editing & Effects"]  # 7
+    Programming_Web_Development = ["Training & Tutorials", "Programming Languages", "Database", "Development Utilities", "Web Design"]  # 8
+    Networking_Servers = ["Security", "Firewalls", "Servers", "Network Management", "Virtual Private Networks"]  # 9
+
+    holdout_class_list = []
+    holdout_class_list.extend(Education_Reference)
+    holdout_class_list.extend(Business_Office)
+    holdout_class_list.extend(Children_s)
+    holdout_class_list.extend(Utilities)
+    holdout_class_list.extend(Design_Illustration)
+    holdout_class_list.extend(Accounting_Finance)
+    holdout_class_list.extend(Video)
+    holdout_class_list.extend(Music)
+    holdout_class_list.extend(Programming_Web_Development)
+    holdout_class_list.extend(Networking_Servers)
+
+    runs_list = []
+    for holdout_class in holdout_class_list:
+        # for ratio in [0,3,6,9]:
+        # for ratio in [1,2,4,5,7,8,10]:
+        for ratio in range(11):
+            # for ratio in [10]:
+            for run_id in range(no_runs):
+                outputs_file = os.path.join(local_result_folder, 'amazon', 'amazon-%s_%s_%d' % (mode, holdout_class.replace(' ', '_'), ratio), 'outputs_%s' % run_id)
+                if not check_done(outputs_file):
+                    script = "cluster_single_amazon.py"
+                    args = "%s %s %d %d" % (mode, holdout_class.replace(' ', '_'), ratio, run_id)
+                    log = "amazon_%s_%s_%d_%d" % (mode, holdout_class.replace(' ', '_'), ratio, run_id)
+                    runs_list.append((script, args, log, True))
+
+    return runs_list
+
+
 parser = argparse.ArgumentParser(description='Schedule experiment runs on the clusters with holdout CIFAR-100 and Resnet18')
 parser.add_argument('local_teamdrive_folder', help='local teamdrive folder')
-parser.add_argument('job', choices=['val_test', 'retrain'], help='which job to run')
+parser.add_argument('job', choices=['val_test', 'retrain', 'train'], help='which job to run')
 
 args = parser.parse_args()
 
@@ -359,10 +451,17 @@ local_teamdrive_folder = args.local_teamdrive_folder
 
 NO_RUNS = 25
 
-if args.job == 'val_test':
-    runs_list = list_cifar100_holdout_val_test_runs(os.path.join(local_teamdrive_folder, 'result'), NO_RUNS)
+# if args.job == 'val_test':
+#    runs_list = list_cifar100_holdout_val_test_runs(os.path.join(local_teamdrive_folder, 'result'), NO_RUNS)
+# elif args.job == 'retrain':
+#    runs_list = list_cifar100_holdout_val_train_more_runs(os.path.join(local_teamdrive_folder, 'result'), NO_RUNS)
+
+if args.job == 'train':
+    runs_list = list_amazon_holdout_runs(os.path.join(local_teamdrive_folder, 'result'), NO_RUNS)
+elif args.job == 'val_test':
+    runs_list = []
 elif args.job == 'retrain':
-    runs_list = list_cifar100_holdout_val_train_more_runs(os.path.join(local_teamdrive_folder, 'result'), NO_RUNS)
+    runs_list = []
 
 #runs_list = list_cifar10_runs(os.path.join(local_teamdrive_folder, 'result'), NO_RUNS)
 

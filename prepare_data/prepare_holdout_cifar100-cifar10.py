@@ -159,33 +159,33 @@ splited_train_data, splited_val_data, splited_train_coarse_targets, splited_val_
 # holdout_class_list = ['ray', 'mushroom', 'caterpillar', 'porcupine', 'baby', ['boy', 'man'], ['girl', 'woman'], ['boy', 'girl'], ['man', 'woman']]
 # holdout_class_list = ['mushroom']
 
-aquatic_mammals_list = ['beaver', 'dolphin', 'otter', 'seal', 'whale']
-# fish_list = ['aquarium_fish', 'flatfish', 'ray', 'shark', 'trout']
-fish_list = ['aquarium_fish', 'flatfish', 'shark', 'trout']
-flower_list = ['orchid', 'poppy', 'rose', 'sunflower', 'tulip']
-# fruit_and_vegetables_list = ['apple', 'mushroom', 'orange', 'pear', 'sweet_pepper']
-fruit_and_vegetables_list = ['apple', 'orange', 'pear', 'sweet_pepper']
-# insects_list = ['bee', 'beetle', 'butterfly', 'caterpillar', 'cockroach']
-insects_list = ['bee', 'beetle', 'butterfly', 'cockroach']
-#medium_mammals_list = ['fox', 'porcupine', 'possum', 'raccoon', 'skunk']
-medium_mammals_list = ['fox', 'possum', 'raccoon', 'skunk']
-#people_list = ['baby', 'boy', 'girl', 'man', 'woman']
-people_list = ['boy', 'girl', 'man', 'woman']
-reptiles_list = ['crocodile', 'dinosaur', 'lizard', 'snake', 'turtle']
-small_mammals_list = ['hamster', 'mouse', 'rabbit', 'shrew', 'squirrel']
-trees_list = ['maple_tree', 'oak_tree', 'palm_tree', 'pine_tree', 'willow_tree']
+aquatic_mammals_list = ['beaver', 'dolphin', 'otter', 'seal', 'whale'] #0
+fish_list = ['aquarium_fish', 'flatfish', 'ray', 'shark', 'trout'] #1
+#fish_list = ['aquarium_fish', 'flatfish', 'shark', 'trout']
+flower_list = ['orchid', 'poppy', 'rose', 'sunflower', 'tulip'] #2
+fruit_and_vegetables_list = ['apple', 'mushroom', 'orange', 'pear', 'sweet_pepper'] #3
+#fruit_and_vegetables_list = ['apple', 'orange', 'pear', 'sweet_pepper']
+insects_list = ['bee', 'beetle', 'butterfly', 'caterpillar', 'cockroach'] #4
+#insects_list = ['bee', 'beetle', 'butterfly', 'cockroach']
+medium_mammals_list = ['fox', 'porcupine', 'possum', 'raccoon', 'skunk'] #5
+#medium_mammals_list = ['fox', 'possum', 'raccoon', 'skunk']
+people_list = ['baby', 'boy', 'girl', 'man', 'woman'] #6
+#people_list = ['boy', 'girl', 'man', 'woman']
+reptiles_list = ['crocodile', 'dinosaur', 'lizard', 'snake', 'turtle'] #7
+small_mammals_list = ['hamster', 'mouse', 'rabbit', 'shrew', 'squirrel'] #8
+trees_list = ['maple_tree', 'oak_tree', 'palm_tree', 'pine_tree', 'willow_tree'] #9
 
 holdout_class_list = []
-# holdout_class_list.extend(aquatic_mammals_list)
-# holdout_class_list.extend(fish_list)
-# holdout_class_list.extend(flower_list)
-# holdout_class_list.extend(fruit_and_vegetables_list)
-# holdout_class_list.extend(insects_list)
-# holdout_class_list.extend(medium_mammals_list)
+holdout_class_list.extend(aquatic_mammals_list)
+holdout_class_list.extend(fish_list)
+holdout_class_list.extend(flower_list)
+holdout_class_list.extend(fruit_and_vegetables_list)
+holdout_class_list.extend(insects_list)
+holdout_class_list.extend(medium_mammals_list)
 holdout_class_list.extend(people_list)
-# holdout_class_list.extend(reptiles_list)
-# holdout_class_list.extend(small_mammals_list)
-# holdout_class_list.extend(trees_list)
+holdout_class_list.extend(reptiles_list)
+holdout_class_list.extend(small_mammals_list)
+holdout_class_list.extend(trees_list)
 
 
 for a in range(11):

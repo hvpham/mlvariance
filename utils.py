@@ -8,6 +8,7 @@ import sys
 import time
 import math
 
+import torch
 import torch.nn as nn
 import torch.nn.init as init
 
@@ -20,11 +21,12 @@ def get_mean_and_std(dataset):
     print('==> Computing mean and std..')
     for inputs, targets in dataloader:
         for i in range(3):
-            mean[i] += inputs[:,i,:,:].mean()
-            std[i] += inputs[:,i,:,:].std()
+            mean[i] += inputs[:, i, :, :].mean()
+            std[i] += inputs[:, i, :, :].std()
     mean.div_(len(dataset))
     std.div_(len(dataset))
     return mean, std
+
 
 def init_params(net):
     '''Init layer parameters.'''
@@ -48,6 +50,8 @@ term_width = int(term_width)
 TOTAL_BAR_LENGTH = 65.
 last_time = time.time()
 begin_time = last_time
+
+
 def progress_bar(current, total, msg=None):
     global last_time, begin_time
     if current == 0:
@@ -91,6 +95,7 @@ def progress_bar(current, total, msg=None):
         sys.stdout.write('\n')
     sys.stdout.flush()
 
+
 def format_time(seconds):
     days = int(seconds / 3600/24)
     seconds = seconds - days*3600*24
@@ -122,3 +127,77 @@ def format_time(seconds):
     if f == '':
         f = '0ms'
     return f
+
+
+def init_embeddings(embeddings) -> None:
+    bias = np.sqrt(3.0 / embeddings.size(1))
+    torch.nn.init.uniform_(embeddings, -bias, bias)
+
+
+def load_embeddings(emb_file, word_map, output_folder):
+    emb_basename = os.path.basename(emb_file)
+    cache_path = os.path.join(output_folder, emb_basename + '.pth.tar')
+
+    # no cache, load embeddings from .txt file
+    if not os.path.isfile(cache_path):
+        # find embedding dimension
+        with open(emb_file, 'r') as f:
+            embed_dim = len(f.readline().split(' ')) - 1
+            num_lines = len(f.readlines())
+
+        vocab = set(word_map.keys())
+
+        # create tensor to hold embeddings, initialize
+        embeddings = torch.FloatTensor(len(vocab), embed_dim)
+        init_embeddings(embeddings)
+
+        # read embedding file
+        for line in tqdm(open(emb_file, 'r'), total=num_lines, desc='Loading embeddings'):
+            line = line.split(' ')
+
+            emb_word = line[0]
+            embedding = list(map(lambda t: float(t), filter(lambda n: n and not n.isspace(), line[1:])))
+
+            # ignore word if not in train_vocab
+            if emb_word not in vocab:
+                continue
+
+            embeddings[word_map[emb_word]] = torch.FloatTensor(embedding)
+
+        # create cache file so we can load it quicker the next time
+        print('Saving vectors to {}'.format(cache_path))
+        torch.save((embeddings, embed_dim), cache_path)
+
+    # load embeddings from cache
+    else:
+        print('Loading embeddings from {}'.format(cache_path))
+        embeddings, embed_dim = torch.load(cache_path)
+
+    return embeddings, embed_dim
+
+
+def load_checkpoint(checkpoint_path, device):
+
+    checkpoint = torch.load(checkpoint_path, map_location=str(device))
+
+    model = checkpoint['model']
+    model_name = checkpoint['model_name']
+    optimizer = checkpoint['optimizer']
+    dataset_name = checkpoint['dataset_name']
+    word_map = checkpoint['word_map']
+    start_epoch = checkpoint['epoch'] + 1
+
+    return model, model_name, optimizer, dataset_name, word_map, start_epoch
+
+
+def save_checkpoint(epoch, model, model_name, optimizer, dataset_name, word_map, checkpoint_path, checkpoint_basename='checkpoint'):
+    state = {
+        'epoch': epoch,
+        'model': model,
+        'model_name': model_name,
+        'optimizer': optimizer,
+        'dataset_name': dataset_name,
+        'word_map': word_map
+    }
+    save_path = os.path.join(checkpoint_path, checkpoint_basename + '.pth.tar')
+    torch.save(state, save_path)

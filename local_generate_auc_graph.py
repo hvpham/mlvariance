@@ -108,7 +108,7 @@ def plot_boxplot_per_metrics_per_group(dfs, groupnames, filename_prefix):
     for df in dfs:
         data.append([df['avg_max_conf'].tolist(), df['std_max_conf'].tolist()])
 
-    ylabels = ['Avg-PreConf', 'SDev-PreConf']
+    ylabels = ['Avg-Conf', 'SDev-Conf']
 
     fig = plt.figure(figsize=(12, 6))
 
@@ -155,6 +155,7 @@ groups = []
 cluster_path = os.path.join(result_folder, 'cifar100', "holdout_cluster.txt")
 f = open(cluster_path, "r")
 for line in f:
+    line = line.strip()
     line_split = line.split(',')
     index = int(line_split[0])
     line_split.pop(0)

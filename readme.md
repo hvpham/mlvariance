@@ -8,6 +8,12 @@ This is a summary of how to runs various scripts. The process of running the exp
 2. Train the models
 3. Analyze and generate result
 
+# Env preparation:
+1. Use the "azureml_py36_pytorch" anaconda env as the base (Already in the new node).
+2. You also need to mount the mlvariance to "~/teamdrive/mlvariance".
+3. Install packages to "azureml_py36_pytorch" using:
+- **python3 -m pip install --disable-pip-version-check --extra-index-url https://azuremlsdktestpypi.azureedge.net/K8s-Compute/D58E86006C65 azureml_contrib_k8s**
+
 # Data preparation:
 Data preparation scripts are located under the folder **prepare_data**.
 

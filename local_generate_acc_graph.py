@@ -33,16 +33,16 @@ def generate_lineplot(data, ylabel, xticklabels, legends, linecolor, linestyles,
     plt.close(fig)
 
 def plot_line_per_metrics(df, filename_prefix):
-    holdout_classes = ['baby', 'boy-girl', 'boy-man', 'girl-woman', 'man-woman', 'caterpillar', 'mushroom', 'porcupine', 'ray']
+    holdout_classes = ['baby', 'mushroom', 'ray']
 
     data = []
     for i in range(len(holdout_classes)):
         group_df = df[df['holdout_class'] == holdout_classes[i]]
         data.append(group_df['test_holdout'].tolist())
 
-    linecolors = ['red','red','red','red','red', 'steelblue','steelblue','steelblue', 'purple']
+    linecolors = ['red', 'steelblue', 'purple']
     loosely_dashed = (0, (5, 10))
-    linestyles = ['solid', 'dotted', 'dashed', 'dashdot', loosely_dashed, 'solid', 'dotted', 'dashed', 'solid']
+    linestyles = ['solid', 'dotted', 'dashed']
     
     generate_lineplot(data, "Blind spot test accuracy",
         ["0%","10%","20%","30%","40%","50%","60%","70%","80%","90%","100%"],
@@ -51,4 +51,4 @@ def plot_line_per_metrics(df, filename_prefix):
         linestyles,
         filename_prefix)
 
-plot_line_per_metrics(df,"Line_per_class_acc")
+plot_line_per_metrics(df,"Line_per_class_acc_baby_mushroom_ray")

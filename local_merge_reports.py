@@ -88,7 +88,7 @@ def merge_auc():
     overall_file_path = os.path.join(result_folder, 'cifar100', 'overall_holdout_auc.csv')
     overall_file_writer = open(overall_file_path, 'w')
 
-    NO_COLS = 11
+    NO_COLS = 19
 
     overall_file_writer.write(",,")
     overall_file_writer.write(",test" + "," * (NO_COLS - 1))
@@ -98,7 +98,7 @@ def merge_auc():
 
     overall_file_writer.write("mode,holdout_class,ratio")
     for i in range(3):
-        overall_file_writer.write(",no_model,avg_ground_conf,std_ground_conf,avg_max_conf,std_max_conf,std_pre_labels,num_pre_labels,min_g_conf,max_g_conf,median_g_conf,min_m_conf,max_m_conf,median_m_conf")
+        overall_file_writer.write(",no_model,avg_ground_conf,std_ground_conf,avg_max_conf,std_max_conf,std_pre_labels,num_pre_labels,min_g_conf_index,max_g_conf_index,median_g_conf_index,min_g_conf,max_g_conf,median_g_conf,min_m_conf_index,max_m_conf_index,median_m_conf_index,min_m_conf,max_m_conf,median_m_conf")
     overall_file_writer.write("\n")
 
     for i in range(len(holdout_class_list)):
@@ -138,5 +138,5 @@ def merge_n_models_auc():
 
 
 # merge_ranks()
-# merge_auc()
+merge_auc()
 # merge_n_models_auc()
