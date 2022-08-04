@@ -434,7 +434,7 @@ def list_amazon_holdout_runs(local_result_folder, no_runs):
                 outputs_file = os.path.join(local_result_folder, 'amazon', 'amazon-%s_%s_%d' % (mode, holdout_class.replace(' ', '_'), ratio), 'outputs_%s' % run_id)
                 if not check_done(outputs_file):
                     script = "cluster_single_amazon.py"
-                    args = "%s %s %d %d" % (mode, holdout_class.replace(' ', '_'), ratio, run_id)
+                    args = "%s %s %d %d" % (mode, holdout_class, ratio, run_id)
                     log = "amazon_%s_%s_%d_%d" % (mode, holdout_class.replace(' ', '_'), ratio, run_id)
                     runs_list.append((script, args, log, True))
 

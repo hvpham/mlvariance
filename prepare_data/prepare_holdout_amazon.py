@@ -6,7 +6,6 @@ import pickle
 from nltk.tokenize import PunktSentenceTokenizer, TreebankWordTokenizer
 from collections import Counter
 
-
 from sklearn.model_selection import train_test_split
 
 # tokenizers
@@ -294,7 +293,7 @@ holdout_class_list.extend(Programming_Web_Development)
 holdout_class_list.extend(Networking_Servers)
 
 #holdout_class_list = ["Languages"]
-holdout_class_list = Children_s
+#holdout_class_list = Children_s
 
 
 sentence_limit = 15
@@ -305,8 +304,8 @@ train_data, word_counter = tokenization_text(train_data, sentence_limit, word_li
 val_data, word_counter = tokenization_text(val_data, sentence_limit, word_limit)
 test_data, word_counter = tokenization_text(test_data, sentence_limit, word_limit)
 
-for a in [0, 1, 2, 5, 10]:
-    # for a in range(11):
+for a in range(11):
+    # for a in [0, 1, 2, 5, 10]:
     # for a in [10]:
     for holdout_class in holdout_class_list:
         if type(holdout_class) is list:

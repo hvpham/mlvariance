@@ -43,7 +43,8 @@ def get_all_unique_cats(data_folder, base_folder):
             for cate2, count2 in sorted_cats_count_2:
                 f.write("\t%d -> %s\n" % (len(count2), cate2))
 
-parser = argparse.ArgumentParser(description='Prepare the CIFAR-10 holdout dataset')
+
+parser = argparse.ArgumentParser(description='Prepare the Amazon holdout dataset')
 parser.add_argument('data_folder', help='data folder path')
 parser.add_argument('mode', choices=['holdout'], help='data prepare mode')
 
