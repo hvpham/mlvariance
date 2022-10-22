@@ -21,7 +21,7 @@ import time
 
 import json
 
-import utils
+#import utils
 
 from models.HAN import HAN
 

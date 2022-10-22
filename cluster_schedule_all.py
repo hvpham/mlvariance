@@ -37,6 +37,20 @@ def schedule_train_job(data_folder, result_folder, experiment_name, runs, GPU):
     #shutil.copy('cluster_single_test.py', project_folder)
     shutil.copy('resnet.py', project_folder)
     #shutil.copy('utils.py', project_folder)
+
+    shutil.copy('cluster_single_amazon.py', project_folder)
+    
+    model_folder = project_folder + "/models"
+    os.makedirs(model_folder, exist_ok=True)
+    shutil.copy('./models/__init__.py', model_folder)
+    
+    han_folder = project_folder + "/models/HAN"
+    os.makedirs(han_folder, exist_ok=True)
+    shutil.copy('./models/HAN/__init__.py', han_folder)
+    shutil.copy('./models/HAN/han.py', han_folder)
+    shutil.copy('./models/HAN/sent_encoder.py', han_folder)
+    shutil.copy('./models/HAN/word_encoder.py', han_folder)
+
     write_run_configs(runs, os.path.join(project_folder, 'runs'))
 
     # Create AML Workspace
