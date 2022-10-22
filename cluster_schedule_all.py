@@ -490,8 +490,8 @@ elif args.job == 'retrain':
 #runs_list = list_cifar100_holdout_analysis_runs(NO_RUNS, "cluster_single_detail_analysis_cifar100_html.py")
 
 #MAX_NO_JOBS = 64
-#MAX_NO_JOBS = 16
-MAX_NO_JOBS = 32
+MAX_NO_JOBS = 16
+#MAX_NO_JOBS = 32
 
 MIN_NO_RUNS_PER_JOB = 10
 
