@@ -120,7 +120,7 @@ def evaluate_model(NO_RUNS, data_folder, result_folder, mode, holdout_class, a):
     f.close()
 
 
-parser = argparse.ArgumentParser(description='Run experiment with holdout AMAZON and HAN')
+parser = argparse.ArgumentParser(description='Evaluate experiment with holdout AMAZON and HAN')
 parser.add_argument('number_of_run', help='number of runs')
 parser.add_argument('data_folder', help='data folder')
 parser.add_argument('result_folder', help='result folder')
@@ -160,8 +160,8 @@ holdout_class_list.extend(Networking_Servers)
 holdout_class_list = Children_s
 
 for holdout_class in holdout_class_list:
-    for a in [0, 1, 2, 5, 10]:
-        # for a in range(11):
+    #for a in [0, 1, 2, 5, 10]:
+    for a in range(11):
         try:
             print("Evaluate mode:%s holdout:%s ratio:%d" % (mode, holdout_class, a))
             evaluate_model(NO_RUNS, data_folder, result_folder, mode, holdout_class, a)

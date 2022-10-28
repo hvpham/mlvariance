@@ -185,7 +185,7 @@ def train_model(run, data_folder, result_folder, mode, holdout_class, a):
     net = net.to(device)
     criterion = criterion.to(device)
 
-    checkpoint_file = 'ckpt_%s_%s_%d_%d.pth' % (mode, holdout_class, a, run)
+    checkpoint_file = 'ckpt_%s_%s_%d_%d.pth' % (mode, holdout_class.replace(' ', '_'), a, run)
     if os.path.isfile(checkpoint_file):
         # Load checkpoint.
         print('==> Resuming from checkpoint..')
@@ -267,7 +267,7 @@ def train_model(run, data_folder, result_folder, mode, holdout_class, a):
                 'optimizer': optimizer,
                 'epoch': epoch
             }
-            torch.save(state, 'ckpt_%s_%s_%d_%d.pth' % (mode, holdout_class, a, run))
+            torch.save(state, 'ckpt_%s_%s_%d_%d.pth' % (mode, holdout_class.replace(' ', '_'), a, run))
 
             sav_toc = time.perf_counter()
             print("Done in %f seconds" % (sav_toc - sav_tic))
@@ -286,7 +286,7 @@ def train_model(run, data_folder, result_folder, mode, holdout_class, a):
 
     print('Deleting check point')
     tic = time.perf_counter()
-    os.remove('ckpt_%s_%s_%d_%d.pth' % (mode, holdout_class, a, run))
+    os.remove('ckpt_%s_%s_%d_%d.pth' % (mode, holdout_class.replace(' ', '_'), a, run))
     toc = time.perf_counter()
     print("Done in %f seconds" % (toc - tic))
 
